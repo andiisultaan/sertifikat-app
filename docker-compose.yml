@@ -39,6 +39,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://38.47.180.68:8000/api
+        NEXTAUTH_URL: http://38.47.180.68:3000
+        NEXTAUTH_SECRET: ukk_sertifikat_secret_2026
     container_name: sertifikat_frontend
     restart: unless-stopped
     ports:
