@@ -45,12 +45,11 @@ services:
       - "3000:3000"
     depends_on:
       - app
-      - nginx
     networks:
       - sertifikat_net
     environment:
-      - NEXT_PUBLIC_API_URL=http://ukk.globalaccess.co.id/api
-      - NEXTAUTH_URL=http://ukk.globalaccess.co.id
+      - NEXT_PUBLIC_API_URL=http://38.47.180.68:8000/api
+      - NEXTAUTH_URL=http://38.47.180.68:3000
       - NEXTAUTH_SECRET=ukk_sertifikat_secret_2026
 
   # Nginx Reverse Proxy
@@ -59,13 +58,12 @@ services:
     container_name: sertifikat_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8000:80"
     volumes:
       - ./backend:/var/www
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
-      - frontend
     networks:
       - sertifikat_net
 
