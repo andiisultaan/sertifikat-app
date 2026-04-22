@@ -71,7 +71,7 @@ services:
     container_name: sertifikat_db
     restart: unless-stopped
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
       MYSQL_DATABASE: sertifikat_ukk
       MYSQL_USER: sertifikat_user
