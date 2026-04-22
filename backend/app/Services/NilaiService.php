@@ -22,14 +22,15 @@ class NilaiService
             ];
         }
 
+        // Nilai akhir = rata-rata nilai internal dan eksternal
         $nilaiAkhir = array_sum($terisi) / count($terisi);
-        $lulus = $nilaiAkhir >= 75;
+        $lulus = $nilaiAkhir >= 61;
 
         $predikat = match (true) {
-            $nilaiAkhir >= 90 => 'A',
-            $nilaiAkhir >= 80 => 'B',
-            $nilaiAkhir >= 75 => 'C',
-            default           => 'D',
+            $nilaiAkhir >= 91 => 'Sangat Kompeten',
+            $nilaiAkhir >= 75 => 'Kompeten',
+            $nilaiAkhir >= 61 => 'Cukup Kompeten',
+            default           => 'Belum Kompeten',
         };
 
         return [

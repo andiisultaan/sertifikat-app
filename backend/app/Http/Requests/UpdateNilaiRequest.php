@@ -14,9 +14,8 @@ class UpdateNilaiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nilai_teori'      => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
-            'nilai_praktik'    => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
-            'nilai_portofolio' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
+            'nilai_internal'  => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
+            'nilai_eksternal' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
         ];
     }
 }

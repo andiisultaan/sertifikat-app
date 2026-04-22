@@ -2,507 +2,764 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Sertifikat - {{ $nama }}</title>
+  <title>Sertifikat UKK - {{ $nama }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    @page { size: A4 portrait; margin: 0; }
 
-    @page { size: A4 landscape; margin: 0; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
 
     body {
-      font-family: Arial, sans-serif;
-      width: 297mm;
-      height: 210mm;
-      overflow: hidden;
-      background: #fff;
+      font-family: 'Source Sans 3', Arial, sans-serif;
+      color: #2c3e50;
+      background: #ffffff;
     }
 
-    .wrap {
-      width: 297mm;
-      height: 210mm;
-      display: table;
-      table-layout: fixed;
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
     }
-
-    /* ===================== PANEL KIRI ===================== */
-    .panel-left {
-      display: table-cell;
-      width: 148.5mm;
-      height: 210mm;
-      vertical-align: top;
+    
+    /* ── PAGE CONTAINER ── */
+    .page {
+      width: 100%;
+      height: 296mm;
       position: relative;
       overflow: hidden;
-      border-right: 1px solid #ccc;
+      background: #ffffff;
+    }
+    .page-break {
+      page-break-before: always;
     }
 
-    /* Stripe warna kiri — 5 garis diagonal */
-    .stripe-left {
+    /* ── BACKGROUND (SVG absolute layer) ── */
+    .bg {
       position: absolute;
       top: 0; left: 0;
-      width: 18mm;
-      height: 210mm;
-      overflow: hidden;
-    }
-    .stripe-left .s1 { position:absolute; top:0;    left:0;   width:18mm; height:210mm; background:#cc1414; transform:skewX(0deg); }
-    .stripe-left .s2 { position:absolute; top:0;    left:3mm; width:4mm;  height:210mm; background:#ffffff; }
-    .stripe-left .s3 { position:absolute; top:0;    left:7mm; width:4mm;  height:210mm; background:#1a3faa; }
-    .stripe-left .s4 { position:absolute; top:0;    left:11mm;width:4mm;  height:210mm; background:#ffffff; }
-    .stripe-left .s5 { position:absolute; top:0;    left:15mm;width:18mm; height:210mm; background:#cc1414; transform:skewX(-10deg); transform-origin:top left; }
-
-    /* Stripe warna bawah kiri */
-    .stripe-bottom-left {
-      position: absolute;
-      bottom: 0; left: 0;
-      width: 148.5mm;
-      height: 10mm;
-      overflow: hidden;
-    }
-    .stripe-bottom-left .b1 { position:absolute; bottom:0; left:0;   width:148.5mm; height:10mm; background:#cc1414; }
-    .stripe-bottom-left .b2 { position:absolute; bottom:0; left:0;   width:148.5mm; height:6mm;  background:#1a3faa; }
-    .stripe-bottom-left .b3 { position:absolute; bottom:0; left:0;   width:148.5mm; height:3mm;  background:#cc1414; }
-
-    .left-content {
-      position: absolute;
-      top: 0; left: 18mm; right: 0; bottom: 10mm;
-      padding: 6mm 5mm 4mm 4mm;
-    }
-
-    /* Logo area */
-    .logo-row {
-      display: table;
       width: 100%;
-      margin-bottom: 2mm;
+      height: 100%;
+      z-index: -1;
     }
-    .logo-cell {
-      display: table-cell;
-      width: 18mm;
-      vertical-align: top;
+
+    /* ── DOUBLE BORDER FRAME ── */
+    .frame-outer {
+      position: absolute;
+      top: 10mm; left: 10mm; right: 10mm; bottom: 10mm;
+      border: 2pt solid #1e3a5f;
+      z-index: 1;
     }
-    .logo-circle {
-      width: 16mm;
-      height: 16mm;
+    .frame-inner {
+      position: absolute;
+      top: 12mm; left: 12mm; right: 12mm; bottom: 12mm;
+      border: 1pt solid #d4af37;
+      z-index: 1;
+    }
+
+    /* ── MAIN CONTENT WRAPPER ── */
+    .content {
+      position: absolute;
+      top: 15mm; left: 15mm; right: 15mm; bottom: 15mm;
+      z-index: 2;
+      text-align: center;
+      /* Cadangan ruang untuk area tanda tangan di bawah */
+      padding-bottom: 82mm;
+    }
+
+    /* ── HEADER BAR ── */
+    .header-center {
+      text-align: center;
+      margin-bottom: 2.5mm;
+    }
+    .header-center-logo {
+      width: 25mm;
+      height: 25mm;
+      margin: 0 auto 3mm auto;
+      object-fit: contain;
+    }
+    .header-logo-fallback {
+      width: 25mm;
+      height: 25mm;
+      border: 1pt solid #1e3a5f;
       border-radius: 50%;
-      background: #1a3faa;
-      border: 2px solid #cc1414;
-      display: table;
+      margin: 0 auto 3mm auto;
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      line-height: 25mm;
       text-align: center;
     }
-    .logo-text {
-      display: table-cell;
-      vertical-align: middle;
-      color: #fff;
-      font-size: 5pt;
-      font-weight: bold;
-      line-height: 1.2;
-    }
-    .title-cell {
-      display: table-cell;
-      vertical-align: middle;
-      padding-left: 2mm;
-    }
-
-    .cert-title {
-      font-size: 13pt;
-      font-weight: bold;
-      color: #cc1414;
+    .header-instansi {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #d4af37;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      line-height: 1.1;
+      letter-spacing: 1.5px;
     }
-    .cert-subtitle {
-      font-size: 7pt;
-      color: #1a3faa;
-      font-style: italic;
-    }
-
-    .nomor {
-      font-size: 6.5pt;
-      color: #555;
-      margin-bottom: 2mm;
-    }
-
-    .divider-red {
-      height: 2px;
-      background: #cc1414;
-      margin: 1.5mm 0;
-    }
-
-    .body-text {
-      font-size: 7pt;
-      color: #333;
-      text-align: center;
-      line-height: 1.4;
-    }
-
-    .nama-siswa {
-      font-size: 18pt;
-      font-weight: bold;
-      color: #cc1414;
-      text-align: center;
-      font-style: italic;
-      margin: 1mm 0;
-      line-height: 1.1;
-    }
-
-    .nis-text {
-      font-size: 6.5pt;
-      color: #555;
-      text-align: center;
-      margin-bottom: 1mm;
-    }
-
-    .jurusan-box {
-      text-align: center;
-      font-size: 10pt;
-      font-weight: bold;
-      color: #1a3faa;
-      margin: 1mm 0;
-    }
-
-    .judul-pengujian {
-      font-size: 6.5pt;
-      color: #333;
-      text-align: center;
-      margin: 1mm 2mm;
-      line-height: 1.4;
-    }
-
-    .predikat-row {
-      text-align: center;
-      margin: 1.5mm 0;
-    }
-    .predikat-label {
-      font-size: 6.5pt;
-      color: #333;
-      font-style: italic;
-    }
-    .predikat-val {
-      font-size: 12pt;
-      font-weight: bold;
-      color: #cc1414;
-      line-height: 1.1;
-    }
-    .nilai-val {
-      font-size: 9pt;
-      font-weight: bold;
-      color: #1a3faa;
-    }
-
-    .berlaku-text {
-      font-size: 6pt;
-      color: #555;
-      text-align: center;
-      font-style: italic;
+    .header-address {
+      font-size: 8.5pt;
+      color: #718096;
       margin-top: 1.5mm;
     }
 
-    .ttd-row {
-      display: table;
+    /* ── GOLD DIVIDER ── */
+    .gold-divider {
       width: 100%;
-      margin-top: 2mm;
-    }
-    .ttd-cell {
-      display: table-cell;
-      width: 50%;
-      text-align: center;
-      font-size: 6pt;
-      color: #333;
-      vertical-align: bottom;
-    }
-    .ttd-space { height: 10mm; }
-    .ttd-nama  { font-weight: bold; font-size: 6.5pt; border-top: 1px solid #333; padding-top: 1mm; }
-    .ttd-nip   { font-size: 5.5pt; color: #666; }
-    .ttd-kota  { font-size: 6pt; color: #333; margin-bottom: 1mm; }
-
-    /* ===================== PANEL KANAN ===================== */
-    .panel-right {
-      display: table-cell;
-      width: 148.5mm;
-      height: 210mm;
-      vertical-align: top;
-      position: relative;
-      overflow: hidden;
+      border-top: 1pt solid #d4af37;
+      margin: 3mm 0;
     }
 
-    /* Stripe warna kanan */
-    .stripe-right {
-      position: absolute;
-      top: 0; right: 0;
-      width: 18mm;
-      height: 210mm;
-      overflow: hidden;
-    }
-    .stripe-right .r1 { position:absolute; top:0; right:0;   width:18mm; height:210mm; background:#cc1414; }
-    .stripe-right .r2 { position:absolute; top:0; right:3mm; width:4mm;  height:210mm; background:#ffffff; }
-    .stripe-right .r3 { position:absolute; top:0; right:7mm; width:4mm;  height:210mm; background:#1a3faa; }
-    .stripe-right .r4 { position:absolute; top:0; right:11mm;width:4mm;  height:210mm; background:#ffffff; }
-    .stripe-right .r5 { position:absolute; top:0; right:15mm;width:18mm; height:210mm; background:#cc1414; transform:skewX(10deg); transform-origin:top right; }
-
-    /* Stripe bawah kanan */
-    .stripe-bottom-right {
-      position: absolute;
-      bottom: 0; right: 0;
-      width: 148.5mm;
-      height: 10mm;
-      overflow: hidden;
-    }
-    .stripe-bottom-right .b1 { position:absolute; bottom:0; left:0; width:148.5mm; height:10mm; background:#cc1414; }
-    .stripe-bottom-right .b2 { position:absolute; bottom:0; left:0; width:148.5mm; height:6mm;  background:#1a3faa; }
-    .stripe-bottom-right .b3 { position:absolute; bottom:0; left:0; width:148.5mm; height:3mm;  background:#cc1414; }
-
-    .right-content {
-      position: absolute;
-      top: 0; left: 0; right: 18mm; bottom: 10mm;
-      padding: 6mm 4mm 4mm 5mm;
-    }
-
-    .kompetensi-title {
-      font-size: 11pt;
-      font-weight: bold;
-      color: #1a3faa;
-      text-align: center;
+    /* ── CERTIFICATE TITLE ── */
+    .cert-label {
+      margin-top: 4mm;
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #d4af37;
       text-transform: uppercase;
-      letter-spacing: 1px;
     }
-    .kompetensi-subtitle {
-      font-size: 7pt;
-      color: #555;
+    /* ── TITLE & TEXT ── */
+    .cert-title {
+      margin-top: 2mm;
+      font-family: 'Playfair Display', serif;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #1e3a5f;
+    }
+    .cert-subtitle {
+      margin-top: 1mm;
+      font-size: 8.5pt;
+      font-style: italic;
+      color: #718096;
+    }
+    .cert-no-wrap {
+      margin-top: 3.5mm;
       text-align: center;
+    }
+    .cert-no {
+      font-size: 10pt;
+      font-weight: bold;
+      color: #1e3a5f;
+    }
+
+    /* ── BODY TEXT ── */
+    .certify-text {
+      margin-top: 4mm;
+      font-size: 10pt;
+      color: #4a5568;
+    }
+
+    /* ── NAME BOX ── */
+    .name-box {
+      margin-top: 3mm;
+      margin-bottom: 1mm;
+      padding: 1.5mm 0;
+    }
+    .name {
+      font-family: 'Playfair Display', serif;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      text-transform: uppercase;
+    }
+    .nis {
+      margin-top: 2mm;
+      font-size: 10pt;
+      color: #4a5568;
+    }
+
+    /* ── INFO ROWS ── */
+    .info-row {
+      margin-top: 3mm;
+      font-size: 10pt;
+      color: #4a5568;
+      line-height: 1.4;
+    }
+    .info-en {
+      display: inline-block;
+      margin-top: 0.5mm;
+      font-style: italic;
+      color: #718096;
+      font-size: 8.5pt;
+    }
+
+    .jurusan-text {
+      margin-top: 2mm;
+      font-family: 'Playfair Display', serif;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #1e3a5f;
+    }
+
+    /* ── JUDUL BOX ── */
+    .judul-outer {
+      margin-top: 3mm;
+      text-align: center;
+    }
+    .judul-label {
+      font-size: 10pt;
+      color: #4a5568;
+    }
+    .judul-main {
+      margin-top: 1mm;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      line-height: 1.4;
+    }
+    .judul-en {
+      display: inline-block;
+      margin-top: 1mm;
+      font-style: italic;
+      color: #718096;
+      font-size: 8.5pt;
+    }
+
+    /* ── PREDIKAT ── */
+    .predikat-section {
+      margin-top: 4mm;
+    }
+    .predikat-label {
+      font-size: 10pt;
+      color: #4a5568;
+    }
+    .predikat-badge-wrap {
+      margin-top: 2.5mm;
+    }
+    .predikat-badge {
+      font-family: 'Playfair Display', serif;
+      font-size: 14pt;
+      font-weight: 700;
+      color: #d4af37;
+    }
+    .nilai-text {
+      margin-top: 2.5mm;
+      font-size: 10pt;
+      color: #4a5568;
+    }
+    .nilai-text strong {
+      color: #1e3a5f;
+      font-size: 10pt;
+    }
+
+    /* ── SIGNATURE WRAPPER ── */
+    .signature-wrapper {
+      position: absolute;
+      bottom: 14mm;
+      left: 15mm;
+      right: 15mm;
+      width: calc(100% - 30mm);
+    }
+
+    /* ── VALIDITY ── */
+    .valid-section {
+      text-align: center;
+      font-size: 9pt;
+      color: #718096;
       font-style: italic;
       margin-bottom: 2mm;
     }
 
-    /* Tabel kompetensi */
-    table.komp-table {
+    /* ── SIGNATURE DATE ── */
+    .sig-date-section {
+      text-align: center;
+      font-size: 10pt;
+      color: #1e3a5f;
+      margin-bottom: 2mm;
+    }
+
+    /* ── SIGNATURE TABLE ── */
+    table.sig1 {
       width: 100%;
       border-collapse: collapse;
-      font-size: 6pt;
-      margin-top: 2mm;
+      table-layout: fixed;
     }
-    table.komp-table th {
-      background: #1a3faa;
-      color: #fff;
-      padding: 1.5mm 2mm;
-      text-align: center;
-      border: 0.5pt solid #1a3faa;
-      font-size: 6pt;
-    }
-    table.komp-table th.th-sub {
-      font-style: italic;
-      font-weight: normal;
-      font-size: 5.5pt;
-    }
-    table.komp-table td {
-      padding: 1mm 2mm;
-      border: 0.5pt solid #ccc;
+    table.sig1 td {
+      width: 50%;
       vertical-align: top;
-      color: #333;
-    }
-    table.komp-table td.no {
       text-align: center;
-      width: 6mm;
     }
-    table.komp-table td.kode {
-      width: 28mm;
-      font-family: monospace;
-      font-size: 6pt;
+    .sig-role {
+      font-size: 10pt;
+      color: #1e3a5f;
+      font-weight: 600;
+      height: 10mm;
     }
-    table.komp-table tr:nth-child(even) td { background: #f5f8ff; }
+    .sig-role em {
+      font-size: 8.5pt;
+      font-weight: 400;
+    }
+    .sig-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 10pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #1e3a5f;
+      text-decoration: underline;
+    }
+    .sig-sub {
+      margin-top: 1mm;
+      font-size: 10pt;
+      color: #4a5568;
+    }
+    .sig-sub em {
+      font-size: 8.5pt;
+    }
 
-    /* TTD bawah kanan */
-    .ttd-right-row {
-      display: table;
-      width: 100%;
+    /* ── QR CODE (tanda tangan digital) ── */
+    .qr-sig-wrap {
+      margin: 2mm auto 2mm auto;
+      display: block;
+      width: 26mm;
+    }
+    .qr-sig-img {
+      width: 26mm;
+      height: 26mm;
+      display: block;
+      margin: 0 auto;
+      border: 0.5pt solid #d4af37;
+      padding: 1mm;
+    }
+    .qr-sig-label {
+      margin-top: 1mm;
+      font-size: 6.5pt;
+      color: #718096;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .qr-sig-label strong {
+      display: block;
+      font-size: 7pt;
+      color: #1e3a5f;
+      font-weight: 700;
+    }
+    
+    /* ── PAGE 2 ── */
+    .p2-content {
+      position: absolute;
+      top: 15mm;
+      left: 15mm;
+      right: 15mm;
+      bottom: 15mm;
+      z-index: 2;
+    }
+    
+    .page2-header {
+      text-align: center;
+      margin-bottom: 5mm;
+    }
+    .page2-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      text-transform: uppercase;
+    }
+    .page2-sub {
+      font-size: 10pt;
+      font-style: italic;
+      color: #718096;
+    }
+    .page2-student {
+      font-size: 9.5pt;
+      color: #4a5568;
       margin-top: 3mm;
     }
-    .ttd-right-cell {
-      display: table-cell;
-      width: 50%;
-      font-size: 6pt;
-      color: #333;
-      vertical-align: bottom;
+    .page2-student strong { color: #1e3a5f; }
+
+    table.komp {
+      width: 100%;
+      border-collapse: collapse;
     }
-    .ttd-right-cell .label { color: #555; font-style: italic; }
-    .ttd-right-cell .nama  { font-weight: bold; font-size: 6.5pt; }
-    .ttd-right-cell .univ  { font-size: 5.5pt; color: #666; font-style: italic; }
+    table.komp thead tr {
+      background: #1e3a5f;
+    }
+    table.komp th {
+      padding: 2.5mm;
+      font-weight: 700;
+      text-align: center;
+      border: 1pt solid #1e3a5f;
+      font-size: 9pt;
+      color: #ffffff;
+    }
+    .th-en {
+      display: block;
+      font-size: 7.5pt;
+      font-weight: 400;
+      font-style: italic;
+      opacity: 0.8;
+      margin-top: 0.5mm;
+    }
+    .td-kriteria {
+      background: #e8edf4;
+      color: #1e3a5f;
+      font-weight: 700;
+      font-size: 9pt;
+      padding: 2mm 3mm;
+      border: 1pt solid #1e3a5f;
+    }
+    .td-sub {
+      background: #f5f5f5;
+      color: #1c1c1c;
+      font-weight: 700;
+      font-size: 9pt;
+      padding: 2mm 3mm;
+      border: 1pt solid #1e3a5f;
+      text-transform: uppercase;
+      letter-spacing: 0.3pt;
+    }
+    table.komp td {
+      border: 1pt solid #1e3a5f;
+      padding: 2.5mm;
+      vertical-align: middle;
+      font-size: 9pt;
+    }
+    table.komp tbody tr:nth-child(even) td:not(.td-kriteria):not(.td-sub) { background: #f8f9fa; }
+    .td-no      { width: 10mm; text-align: center; font-weight: 600; }
+
+    .td-section { font-weight: 700; font-size: 9pt; vertical-align: middle; }
+
+    /* ── ASSESSORS (page 2 footer) ── */
+    table.assessors {
+      margin-top: 8mm;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5pt;
+    }
+    table.assessors td {
+      padding: 2.5mm 0;
+      vertical-align: top;
+      color: #2c3e50;
+    }
+    .assessor-role {
+      width: 50mm;
+      font-weight: 700;
+      color: #1e3a5f;
+    }
+    .assessor-role em {
+      display: block;
+      font-weight: 400;
+      font-style: italic;
+      color: #718096;
+      margin-top: 0.6mm;
+      font-size: 8.5pt;
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
 
-  {{-- =================== PANEL KIRI =================== --}}
-  <div class="panel-left">
+{{-- ============================================================
+     HALAMAN 1 — SERTIFIKAT (A4)
+============================================================ --}}
+<div class="page">
 
-    {{-- Stripe dekoratif kiri --}}
-    <div class="stripe-left">
-      <div class="s1"></div>
-      <div class="s2"></div>
-      <div class="s3"></div>
-      <div class="s4"></div>
-    </div>
+  {{-- Background SVG: border stripes + corner ornaments --}}
+  <div class="bg">
+    <svg width="210mm" height="297mm" viewBox="0 0 794 1123" xmlns="http://www.w3.org/2000/svg">
+     
+      {{-- Top/Bottom gold stripe --}}
+      <rect x="0" y="0"    width="794" height="11" fill="#d4af37"/>
+      <rect x="0" y="1112" width="794" height="11" fill="#d4af37"/>
+      {{-- Left/Right gold stripe --}}
+      <rect x="0"   y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
+      <rect x="783" y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
+      {{-- Corner L-ornaments (top-left) --}}
+      <path d="M0,0 L114,0 L114,11 L11,11 L11,114 L0,114 Z" fill="#d4af37" opacity="0.8"/>
+      {{-- Corner L-ornaments (top-right) --}}
+      <path d="M794,0 L680,0 L680,11 L783,11 L783,114 L794,114 Z" fill="#d4af37" opacity="0.8"/>
+      {{-- Corner L-ornaments (bottom-left) --}}
+      <path d="M0,1123 L114,1123 L114,1112 L11,1112 L11,1009 L0,1009 Z" fill="#d4af37" opacity="0.8"/>
+      {{-- Corner L-ornaments (bottom-right) --}}
+      <path d="M794,1123 L680,1123 L680,1112 L783,1112 L783,1009 L794,1009 Z" fill="#d4af37" opacity="0.8"/>
+    </svg>
+  </div>
 
-    {{-- Stripe bawah --}}
-    <div class="stripe-bottom-left">
-      <div class="b1"></div>
-      <div class="b2"></div>
-      <div class="b3"></div>
-    </div>
+  {{-- Double frame --}}
+  <div class="frame-outer"></div>
+  <div class="frame-inner"></div>
 
-    <div class="left-content">
+  {{-- Main content --}}
+  <div class="content">
 
-      {{-- Logo + Judul --}}
-      <div class="logo-row">
-        <div class="logo-cell">
-          <div class="logo-circle">
-            <div class="logo-text">SMK</div>
-          </div>
-        </div>
-        <div class="title-cell">
-          <div class="cert-title">Sertifikat Uji Kompetensi</div>
-          <div class="cert-subtitle">Certificate of Competency Assessment</div>
-        </div>
-      </div>
-
-      <div class="nomor">Nomor : {{ $nomor_sertifikat }}</div>
-      <div class="divider-red"></div>
-
-      {{-- Konten utama --}}
-      <div class="body-text" style="margin-top:1.5mm;">
-        Dengan ini menyatakan bahwa,<br>
-        <span style="font-style:italic; font-size:6pt;">This is to certify that,</span>
-      </div>
-
-      <div class="nama-siswa">{{ $nama }}</div>
-      <div class="nis-text">NIS: {{ $nis }}</div>
-
-      <div class="body-text">
-        Telah mengikuti Uji Kompetensi Keahlian<br>
-        <span style="font-style:italic; font-size:6pt;">has taken the competency test</span>
-      </div>
-
-      <div class="body-text" style="margin-top:1mm;">
-        pada Kompetensi Keahlian / <span style="font-style:italic;">in Competency of</span>
-      </div>
-
-      <div class="jurusan-box">{{ $jurusan }}</div>
-
-      @if(!empty($judul_pengujian))
-      <div class="body-text" style="margin-top:0.5mm; font-size:6pt;">
-        pada Judul Pengujian / <span style="font-style:italic;">on Assessment</span>
-      </div>
-      <div class="judul-pengujian">{{ $judul_pengujian }}</div>
+    {{-- Header bar --}}
+    <div class="header-center">
+      @php $logoPath = public_path('images/logo-dinas-pendidikan.png'); @endphp
+      @if(file_exists($logoPath))
+        <img src="{{ $logoPath }}" alt="Logo Dinas" class="header-center-logo">
+      @else
+        <div class="header-logo-fallback">LOGO<br>DINAS</div>
       @endif
-
-      <div class="predikat-row">
-        <div class="predikat-label">dengan predikat / <em>with achievement level</em></div>
-        <div class="predikat-val">{{ $predikat }}</div>
-        <div class="nilai-val">Nilai Akhir: {{ $nilai_akhir }}</div>
-      </div>
-
-      <div class="berlaku-text">
-        Sertifikat ini berlaku untuk : 3 (tiga) Tahun<br>
-        <em>This certificate is valid for : 3 (three) Years</em>
-      </div>
-
-      {{-- TTD --}}
-      <div class="ttd-row" style="margin-top:2mm;">
-        <div class="ttd-cell">
-          <div class="ttd-kota">{{ $nama_sekolah ?? 'Sekolah' }}, {{ \Carbon\Carbon::parse($tanggal_terbit)->translatedFormat('d F Y') }}</div>
-          <div class="ttd-space"></div>
-          <div class="ttd-nama">{{ $nama_kepsek ?? 'Kepala Sekolah' }}</div>
-          <div class="ttd-nip">NIP. {{ $nip_kepsek ?? '-' }}</div>
-          <div style="font-size:5.5pt; color:#555;">Kepala Sekolah / <em>School Principal</em></div>
-        </div>
-        <div class="ttd-cell">
-          <div class="ttd-kota">&nbsp;</div>
-          <div class="ttd-space"></div>
-          <div class="ttd-nama">{{ $nama_penguji_external ?? 'Penguji External' }}</div>
-          <div class="ttd-nip">{{ $nama_universitas ?? '' }}</div>
-          <div style="font-size:5.5pt; color:#555;">Penguji External / <em>External Assessor</em></div>
-        </div>
-      </div>
-
-      {{-- Nama sekolah bawah --}}
-      <div style="font-size:5.5pt; color:#555; text-align:left; margin-top:1.5mm; border-top:0.5pt solid #ddd; padding-top:1mm;">
-        Atas nama {{ $nama_sekolah ?? 'SMK' }}<br>
-        On behalf of {{ $nama_sekolah ?? 'SMK' }}
-      </div>
-
-    </div>
-  </div>
-
-  {{-- =================== PANEL KANAN =================== --}}
-  <div class="panel-right">
-
-    <div class="stripe-right">
-      <div class="r1"></div>
-      <div class="r2"></div>
-      <div class="r3"></div>
-      <div class="r4"></div>
     </div>
 
-    <div class="stripe-bottom-right">
-      <div class="b1"></div>
-      <div class="b2"></div>
-      <div class="b3"></div>
+    {{-- Certificate title --}}
+    <div class="cert-title" style="font-size: 24pt;">Sertifikat Uji Kompetensi</div>
+    <div class="cert-subtitle" style="font-size: 14pt;">Certificate of Competency Assessment</div>
+    <div class="cert-no-wrap">
+      <span class="cert-no">Nomor : <span class="nowrap">{{ $nomor_sertifikat }}</span></span>
     </div>
 
-    <div class="right-content">
+    {{-- Certify text --}}
+    <div class="certify-text">
+      Dengan bangga diberikan kepada<br>
+      <span class="info-en">This certificate is proudly presented to</span>
+    </div>
 
-      <div class="kompetensi-title">Daftar Kompetensi</div>
-      <div class="kompetensi-subtitle">List Of Competency</div>
-      <div class="divider-red"></div>
+    {{-- Name box --}}
+    <div class="name-box">
+      <div class="name">{{ $nama }}</div>
+      <div class="nis">NISN &nbsp;&bull;&nbsp; {{ $nis }}</div>
+    </div>
 
-      <table class="komp-table">
-        <thead>
-          <tr>
-            <th rowspan="2" style="width:6mm;">No</th>
-            <th rowspan="2" style="width:28mm;">
-              Kode Kompetensi<br>
-              <span class="th-sub">Code of Competency</span>
-            </th>
-            <th rowspan="2">
-              Judul Kompetensi<br>
-              <span class="th-sub">Title of Competency</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($kompetensi as $index => $k)
-          <tr>
-            <td class="no">{{ $index + 1 }}.</td>
-            <td class="kode">{{ $k['kode'] ?? '-' }}</td>
-            <td>{{ $k['judul'] ?? '-' }}</td>
-          </tr>
-          @empty
-          <tr>
-            <td class="no">1.</td>
-            <td class="kode">—</td>
-            <td>Data kompetensi belum diisi pada data UKK.</td>
-          </tr>
-          @endforelse
-        </tbody>
-      </table>
+    {{-- Info rows --}}
+    <div class="info-row">
+      Telah mengikuti Uji Kompetensi Keahlian<br>
+      <span class="info-en">has taken the competency test</span><br><br>
+      pada Kompetensi Keahlian<br>
+      <span class="info-en">in Competency of</span>
+    </div>
 
-      {{-- TTD kanan --}}
-      <div class="ttd-right-row" style="margin-top:3mm;">
-        <div class="ttd-right-cell" style="padding-right:4mm;">
-          <div class="label">Penguji Internal<br><em>Internal Assessor</em></div>
-          <div style="height:10mm; border-bottom:1px solid #333; margin:1mm 0;"></div>
-          <div class="nama">{{ $nama_penguji_internal ?? '________________________' }}</div>
-        </div>
-        <div class="ttd-right-cell" style="padding-left:2mm;">
-          <div class="label">Penguji External<br><em>External Assessor</em></div>
-          <div style="height:10mm; border-bottom:1px solid #333; margin:1mm 0;"></div>
-          <div class="nama">{{ $nama_penguji_external ?? '________________________' }}</div>
-          @if(!empty($nama_universitas))
-          <div class="univ">({{ $nama_universitas }})</div>
+    <div class="jurusan-text">{{ $jurusan }}</div>
+
+    @if(!empty($judul_pengujian))
+      <div class="judul-outer">
+        <div class="judul-label">pada Judul Penugasan <br><span class="info-en">on Assignment</span></div>
+        <div class="judul-main">{{ $judul_pengujian }}</div>
+        @if(!empty($judul_pengujian_en))
+          <div class="judul-en">{{ $judul_pengujian_en }}</div>
+        @endif
+      </div>
+    @endif
+
+    {{-- Predikat --}}
+    <div class="predikat-section">
+      <div class="predikat-label">
+        dengan predikat<br>
+        <span class="info-en">with achievement level</span>
+      </div>
+      <div class="predikat-badge-wrap">
+        <span class="predikat-badge">{{ $predikat }}</span>
+      </div>
+      <div class="nilai-text">
+        Nilai Akhir :&nbsp;<strong>{{ $nilai_akhir }}</strong><br>
+        <span class="info-en">Final Score</span>
+      </div>
+    </div>
+
+  </div>{{-- /content --}}
+
+  {{-- Signatures Wrapper --}}
+  <div class="signature-wrapper">
+    {{-- Validity --}}
+    <div class="valid-section">
+      Sertifikat ini berlaku untuk : 3 (tiga) Tahun<br>
+      <span class="info-en">This certificate is valid for : 3 (three) Years</span>
+    </div>
+
+    {{-- Date --}}
+    <div class="sig-date-section">
+      {{ $kota ?? '' }}{{ ($kota ?? '') ? ', ' : '' }}{{ \Carbon\Carbon::parse($tanggal_terbit)->translatedFormat('d F Y') }}
+    </div>
+
+    {{-- Signatures --}}
+    <table class="sig1">
+      <tr>
+        {{-- Kepala Sekolah --}}
+        <td>
+          <div class="sig-role">
+            Atas Nama {{ $nama_sekolah ?? 'Sekolah' }}<br>
+            <em>On Behalf of the School</em>
+          </div>
+          {{-- QR = Tanda Tangan Digital Kepala Sekolah --}}
+          @if(!empty($qr_base64))
+            <div class="qr-sig-wrap">
+              <img src="data:image/svg+xml;base64,{{ $qr_base64 }}" alt="TTD Digital Kepala Sekolah" class="qr-sig-img">
+              <div class="qr-sig-label">
+                <strong>Tanda Tangan Digital</strong>
+                Digital Signature
+              </div>
+            </div>
           @endif
-        </div>
-      </div>
+          <div class="sig-name">{{ $nama_kepsek ?? '____________________________' }}</div>
+          <div class="sig-sub">
+            Kepala Sekolah<br>
+            <em>School Principal</em>
+          </div>
+        </td>
 
-    </div>
+        {{-- Penguji Eksternal --}}
+        <td>
+          <div class="sig-role">
+            @if(!empty($nama_universitas))
+              {{ $nama_universitas }}<br>
+              <em>{{ $nama_universitas }}</em>
+            @else
+              &nbsp;<br><em>&nbsp;</em>
+            @endif
+          </div>
+          {{-- QR = Tanda Tangan Digital Penguji Eksternal --}}
+          @if(!empty($qr_base64))
+            <div class="qr-sig-wrap">
+              <img src="data:image/svg+xml;base64,{{ $qr_base64 }}" alt="TTD Digital Penguji Eksternal" class="qr-sig-img">
+              <div class="qr-sig-label">
+                <strong>Tanda Tangan Digital</strong>
+                Digital Signature
+              </div>
+            </div>
+          @endif
+          <div class="sig-name">{{ $nama_penguji_external ?? '____________________________' }}</div>
+          <div class="sig-sub">
+            Penguji Eksternal<br>
+            <em>External Assessor</em>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>{{-- /page 1 --}}
+
+<div class="page-break"></div>
+
+{{-- ============================================================
+     HALAMAN 2 — DAFTAR KOMPETENSI (A4)
+============================================================ --}}
+<div class="page">
+
+  <div class="bg">
+    <svg width="210mm" height="297mm" viewBox="0 0 794 1123" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0"    width="794" height="11" fill="#d4af37"/>
+      <rect x="0" y="1112" width="794" height="11" fill="#d4af37"/>
+      <rect x="0"   y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
+      <rect x="783" y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
+      <path d="M0,0 L114,0 L114,11 L11,11 L11,114 L0,114 Z"         fill="#d4af37" opacity="0.8"/>
+      <path d="M794,0 L680,0 L680,11 L783,11 L783,114 L794,114 Z"   fill="#d4af37" opacity="0.8"/>
+      <path d="M0,1123 L114,1123 L114,1112 L11,1112 L11,1009 L0,1009 Z"       fill="#d4af37" opacity="0.8"/>
+      <path d="M794,1123 L680,1123 L680,1112 L783,1112 L783,1009 L794,1009 Z" fill="#d4af37" opacity="0.8"/>
+    </svg>
   </div>
 
-</div>
+  <div class="frame-outer"></div>
+  <div class="frame-inner"></div>
+
+  <div class="p2-content">
+    <div class="page2-header">
+      <div class="page2-title">Daftar Kompetensi yang Diuji</div>
+      <div class="page2-sub">List of Assessed Competencies</div>
+      <div class="page2-student">
+        Peserta : <strong>{{ $nama }}</strong>
+        &nbsp;&bull;&nbsp; NISN: <strong>{{ $nis }}</strong>
+        &nbsp;&bull;&nbsp; {{ $jurusan }}
+      </div>
+    </div>
+
+    <table class="komp">
+      <thead>
+        <tr>
+          <th class="td-no">No<span class="th-en">No.</span></th>
+          <th>ELEMEN KOMPETENSI<span class="th-en">Competency Elements</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @php
+          $isNewFormat = is_array($kompetensi) && (isset($kompetensi['utama']) || isset($kompetensi['pendukung']));
+          $rowNum = 1;
+        @endphp
+        @if($isNewFormat)
+          {{-- ── SECTION I: KRITERIA ELEMEN KOMPETENSI UTAMA ── --}}
+          <tr>
+            <td class="td-no td-section">I</td>
+            <td class="td-section">Kriteria Elemen Kompetensi Utama</td>
+          </tr>
+          @php
+            $subSections = [
+              'PERENCANAAN &amp; PERSIAPAN' => ['key' => 'perencanaan_persiapan'],
+              'IMPLEMENTASI'                => ['key' => 'implementasi'],
+              'PENGUJIAN &amp; DOKUMENTASI' => ['key' => 'pengujian_dokumentasi'],
+            ];
+          @endphp
+          @foreach($subSections as $subLabel => $subMeta)
+            @php $items = $kompetensi['utama'][$subMeta['key']] ?? []; @endphp
+            @if(count($items) > 0)
+              <tr>
+                <td colspan="2" class="td-sub">{!! $subLabel !!}</td>
+              </tr>
+              @foreach($items as $k)
+                <tr>
+                  <td class="td-no">{{ $rowNum++ }}</td>
+                  <td>{{ $k['judul'] ?? '-' }}</td>
+                </tr>
+              @endforeach
+            @endif
+          @endforeach
+
+          {{-- ── SECTION II: KRITERIA ELEMEN KOMPETENSI PENDUKUNG ── --}}
+          @php $pendukung = $kompetensi['pendukung'] ?? []; @endphp
+          @if(count($pendukung) > 0)
+            <tr>
+              <td class="td-no td-section">II</td>
+              <td class="td-section">Kriteria Elemen Kompetensi Pendukung</td>
+            </tr>
+            @foreach($pendukung as $k)
+              <tr>
+                <td class="td-no">{{ $rowNum++ }}</td>
+                <td>{{ $k['judul'] ?? '-' }}</td>
+              </tr>
+            @endforeach
+          @endif
+        @else
+          {{-- ── FALLBACK: old flat array format ── --}}
+          @forelse($kompetensi as $index => $k)
+            <tr>
+              <td class="td-no">{{ $index + 1 }}</td>
+              <td>{{ $k['judul'] ?? $k['kode'] ?? '-' }}</td>
+            </tr>
+          @empty
+            <tr>
+              <td colspan="2" style="padding:10mm 0; text-align:center; font-style:italic; color:#718096;">
+                Data kompetensi belum diisi.
+              </td>
+            </tr>
+          @endforelse
+        @endif
+      </tbody>
+    </table>
+
+    <table class="assessors">
+      <tr>
+        <td class="assessor-role">
+          Penguji Internal
+          <em>Internal Assessor</em>
+        </td>
+        <td style="text-align: left;">
+          : <strong>{{ $nama_penguji_internal ?? '________________________________' }}</strong>
+          @if(!empty($nama_sekolah))
+            <br><span style="color:#718096; padding-left: 2mm;"> &mdash; {{ $nama_sekolah }}</span>
+          @endif
+        </td>
+      </tr>
+      <tr>
+        <td class="assessor-role">
+          Penguji Eksternal
+          <em>External Assessor</em>
+        </td>
+        <td style="text-align: left;">
+          : <strong>{{ $nama_penguji_external ?? '________________________________' }}</strong>
+          @if(!empty($nama_universitas))
+            <br><span style="color:#718096; padding-left: 2mm;"> &mdash; {{ $nama_universitas }}</span>
+          @endif
+        </td>
+      </tr>
+    </table>
+
+  </div>
+
+</div>{{-- /page 2 --}}
+
 </body>
 </html>

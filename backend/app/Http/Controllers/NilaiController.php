@@ -30,10 +30,18 @@ class NilaiController extends Controller
     public function store(StoreNilaiRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $role = $request->user()->role;
+
+        // Penguji hanya boleh mengisi field miliknya
+        if ($role === 'penguji_internal') {
+            $data['nilai_eksternal'] = null;
+        } elseif ($role === 'penguji_external') {
+            $data['nilai_internal'] = null;
+        }
+
         $kalkulasi = $this->nilaiService->hitungNilaiAkhir([
-            'nilai_teori'      => $data['nilai_teori'] ?? null,
-            'nilai_praktik'    => $data['nilai_praktik'] ?? null,
-            'nilai_portofolio' => $data['nilai_portofolio'] ?? null,
+            'nilai_internal'  => $data['nilai_internal'] ?? null,
+            'nilai_eksternal' => $data['nilai_eksternal'] ?? null,
         ]);
 
         $nilai = $this->repo->create(array_merge($data, $kalkulasi));
@@ -49,12 +57,19 @@ class NilaiController extends Controller
     public function update(UpdateNilaiRequest $request, int $id): JsonResponse
     {
         $nilai = $this->repo->findById($id);
-        $data = $request->validated();
+        $data  = $request->validated();
+        $role  = $request->user()->role;
+
+        // Penguji hanya boleh mengubah field miliknya
+        if ($role === 'penguji_internal') {
+            unset($data['nilai_eksternal']);
+        } elseif ($role === 'penguji_external') {
+            unset($data['nilai_internal']);
+        }
 
         $kalkulasi = $this->nilaiService->hitungNilaiAkhir([
-            'nilai_teori'      => $data['nilai_teori'] ?? $nilai->nilai_teori,
-            'nilai_praktik'    => $data['nilai_praktik'] ?? $nilai->nilai_praktik,
-            'nilai_portofolio' => $data['nilai_portofolio'] ?? $nilai->nilai_portofolio,
+            'nilai_internal'  => $data['nilai_internal']  ?? $nilai->nilai_internal,
+            'nilai_eksternal' => $data['nilai_eksternal'] ?? $nilai->nilai_eksternal,
         ]);
 
         return response()->json($this->repo->update($nilai, array_merge($data, $kalkulasi)));

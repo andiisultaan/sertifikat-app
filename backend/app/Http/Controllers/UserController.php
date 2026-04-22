@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
@@ -20,7 +21,7 @@ class UserController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'unique:users,email'],
             'password' => ['required', Password::min(8)],
-            'role'     => ['required', 'in:super_admin,penguji_internal,penguji_external'],
+            'role'     => ['required', 'in:super_admin,admin,penguji_internal,penguji_external'],
         ]);
 
         $user = User::create($data);
@@ -39,7 +40,7 @@ class UserController extends Controller
             'name'     => ['sometimes', 'string', 'max:255'],
             'email'    => ['sometimes', 'email', 'unique:users,email,' . $user->id],
             'password' => ['sometimes', 'nullable', Password::min(8)],
-            'role'     => ['sometimes', 'in:super_admin,penguji_internal,penguji_external'],
+            'role'     => ['sometimes', 'in:super_admin,admin,penguji_internal,penguji_external'],
         ]);
 
         if (isset($data['password']) && $data['password'] === null) {
@@ -54,7 +55,7 @@ class UserController extends Controller
     public function destroy(User $user): JsonResponse
     {
         // Tidak boleh hapus diri sendiri
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return response()->json(['message' => 'Tidak dapat menghapus akun sendiri.'], 422);
         }
 

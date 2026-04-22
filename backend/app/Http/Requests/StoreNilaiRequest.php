@@ -14,11 +14,10 @@ class StoreNilaiRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'siswa_id'         => ['required', 'exists:siswa,id'],
-            'ukk_id'           => ['required', 'exists:ukk,id'],
-            'nilai_teori'      => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'nilai_praktik'    => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'nilai_portofolio' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'siswa_id'        => ['required', 'exists:siswa,id'],
+            'ukk_id'          => ['required', 'exists:ukk,id'],
+            'nilai_internal'  => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'nilai_eksternal' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ];
     }
 }

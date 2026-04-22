@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CertificateVerifyController;
 use App\Http\Controllers\NilaiController;
 use App\Http\Controllers\SertifikatController;
 use App\Http\Controllers\SiswaController;
@@ -8,32 +9,38 @@ use App\Http\Controllers\UkkController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
+// ── Verifikasi sertifikat (publik, tanpa auth) ──────────────────────────────
+Route::get('/verify/{token}', [CertificateVerifyController::class, 'verify']);
+
 // Auth
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me',      [AuthController::class, 'me']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
 
-    // ── Super admin only ────────────────────────────────────────────────────
+    // ── Super admin only — manajemen user ──────────────────────────────────
     Route::middleware('role:super_admin')->group(function () {
-        // Manajemen user
         Route::apiResource('users', UserController::class);
+    });
 
+    // ── Super admin + admin ────────────────────────────────────────────────
+    Route::middleware('role:super_admin,admin')->group(function () {
         // Siswa & UKK
         Route::apiResource('siswa', SiswaController::class);
         Route::apiResource('ukk', UkkController::class);
 
-        // Nilai — hapus hanya super_admin
+        // Nilai — hapus
         Route::delete('nilai/{nilai}', [NilaiController::class, 'destroy']);
 
-        // Sertifikat
+        // Sertifikat — generate & delete
         Route::post('sertifikat/generate', [SertifikatController::class, 'generate']);
         Route::delete('sertifikat/{id}',   [SertifikatController::class, 'destroy']);
     });
 
-    // ── Super admin + penguji ───────────────────────────────────────────────
-    Route::middleware('role:super_admin,penguji_internal,penguji_external')->group(function () {
+    // ── Semua role terautentikasi ──────────────────────────────────────────
+    Route::middleware('role:super_admin,admin,penguji_internal,penguji_external')->group(function () {
         // Nilai — read, create, update
         Route::get('nilai',             [NilaiController::class, 'index']);
         Route::post('nilai',            [NilaiController::class, 'store']);

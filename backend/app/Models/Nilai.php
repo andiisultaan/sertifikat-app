@@ -13,9 +13,8 @@ class Nilai extends Model
     protected $fillable = [
         'siswa_id',
         'ukk_id',
-        'nilai_teori',
-        'nilai_praktik',
-        'nilai_portofolio',
+        'nilai_internal',
+        'nilai_eksternal',
         'nilai_akhir',
         'status',
         'predikat',
@@ -23,9 +22,8 @@ class Nilai extends Model
     ];
 
     protected $casts = [
-        'nilai_teori'      => 'float',
-        'nilai_praktik'    => 'float',
-        'nilai_portofolio' => 'float',
+        'nilai_internal'   => 'float',
+        'nilai_eksternal'  => 'float',
         'nilai_akhir'      => 'float',
         'is_finalized'     => 'boolean',
     ];

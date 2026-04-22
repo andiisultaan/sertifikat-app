@@ -7,6 +7,7 @@ use App\Models\TemplateSertifikat;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class CertificateService
 {
@@ -19,9 +20,32 @@ class CertificateService
         $sertifikat->update(['status' => 'processing']);
 
         try {
-            $nilai  = $sertifikat->nilai->load(['siswa', 'ukk']);
+            // Pastikan qr_token sudah ada
+            if (empty($sertifikat->qr_token)) {
+                $sertifikat->update(['qr_token' => Str::random(32)]);
+                $sertifikat->refresh();
+            }
+
+            $nilai  = $sertifikat->nilai()->with(['siswa', 'ukk'])->firstOrFail();
             $siswa  = $nilai->siswa;
             $ukk    = $nilai->ukk;
+
+            if (!$siswa) {
+                throw new \RuntimeException("Data siswa tidak ditemukan untuk nilai ID {$nilai->id}.");
+            }
+            if (!$ukk) {
+                throw new \RuntimeException("Data UKK tidak ditemukan untuk nilai ID {$nilai->id}.");
+            }
+
+            // Generate QR code sebagai base64 SVG
+            // Arahkan ke halaman verifikasi frontend
+            $verifyUrl = rtrim(config('app.frontend_url', config('app.url')), '/') . '/verify/' . $sertifikat->qr_token;
+            $qrBase64  = base64_encode(
+                QrCode::format('svg')
+                    ->size(120)
+                    ->margin(1)
+                    ->generate($verifyUrl)
+            );
 
             $data = [
                 'nama'                   => $siswa->nama,
@@ -44,10 +68,12 @@ class CertificateService
                 'nama_penguji_internal'  => $ukk->nama_penguji_internal,
                 'nama_penguji_external'  => $ukk->nama_penguji_external,
                 'nama_universitas'       => $ukk->nama_universitas,
+                'qr_base64'              => $qrBase64,
+                'verify_url'             => $verifyUrl,
             ];
 
             $pdf = Pdf::loadView('certificate.template', $data)
-                ->setPaper('a4', 'landscape');
+                ->setPaper('a4', 'portrait');
 
             $safeNomor = str_replace('/', '-', $sertifikat->nomor_sertifikat);
             $fileName  = 'sertifikat/' . Str::slug($siswa->nama) . '-' . $safeNomor . '.pdf';

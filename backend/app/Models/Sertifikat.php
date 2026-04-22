@@ -13,6 +13,7 @@ class Sertifikat extends Model
         'nilai_id',
         'template_id',
         'nomor_sertifikat',
+        'qr_token',
         'file_path',
         'status',
         'error_message',

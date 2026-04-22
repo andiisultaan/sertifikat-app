@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\GenerateCertificateJob;
 use App\Models\Nilai;
 use App\Models\Sertifikat;
 use App\Models\TemplateSertifikat;
+use App\Services\CertificateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class SertifikatController extends Controller
 {
+    public function __construct(private CertificateService $certificateService) {}
+
     /**
      * Daftar semua sertifikat (dengan relasi nilai→siswa→ukk).
      */
@@ -20,7 +23,7 @@ class SertifikatController extends Controller
     {
         $sertifikat = Sertifikat::with(['nilai.siswa', 'nilai.ukk', 'template'])
             ->latest()
-            ->paginate((int) $request->get('per_page', 15));
+            ->paginate((int) $request->query('per_page', 15));
 
         return response()->json($sertifikat);
     }
@@ -73,6 +76,7 @@ class SertifikatController extends Controller
             [
                 'template_id'      => $template->id,
                 'nomor_sertifikat' => $this->generateNomor(),
+                'qr_token'         => Str::random(32),
                 'status'           => 'pending',
             ]
         );
@@ -84,18 +88,19 @@ class SertifikatController extends Controller
             'template_id'   => $template->id,
         ]);
 
-        GenerateCertificateJob::dispatch($sertifikat->id);
+        // Proses sinkronus — langsung generate PDF tanpa queue
+        $result = $this->certificateService->generate($sertifikat);
 
         return response()->json([
-            'message'    => 'Sertifikat sedang diproses.',
-            'sertifikat' => $sertifikat->fresh(),
-        ], 202);
+            'message'    => 'Sertifikat berhasil digenerate.',
+            'sertifikat' => $result,
+        ], 200);
     }
 
     /**
      * Download PDF sertifikat.
      */
-    public function download(int $id): StreamedResponse|JsonResponse
+    public function download(int $id): BinaryFileResponse|JsonResponse
     {
         $sertifikat = Sertifikat::with('nilai.siswa')->findOrFail($id);
 
@@ -108,10 +113,12 @@ class SertifikatController extends Controller
         }
 
         $nama = $sertifikat->nilai->siswa->nama ?? 'sertifikat';
+        $path = Storage::disk('public')->path($sertifikat->file_path);
 
-        return Storage::disk('public')->download(
-            $sertifikat->file_path,
-            'Sertifikat-' . str_replace(' ', '-', $nama) . '.pdf'
+        return response()->download(
+            $path,
+            'Sertifikat-' . str_replace(' ', '-', $nama) . '.pdf',
+            ['Content-Type' => 'application/pdf']
         );
     }
 
