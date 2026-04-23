@@ -40,8 +40,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: http://ukk.globalaccess.co.id/api
-        NEXTAUTH_URL: http://ukk.globalaccess.co.id
+        NEXT_PUBLIC_API_URL: https://ukk.globalaccess.co.id/api
+        NEXTAUTH_URL: https://ukk.globalaccess.co.id
         NEXTAUTH_SECRET: ukk_sertifikat_secret_2026
     container_name: sertifikat_frontend
     restart: unless-stopped
@@ -50,8 +50,8 @@ services:
     networks:
       - sertifikat_net
     environment:
-      - NEXT_PUBLIC_API_URL=http://ukk.globalaccess.co.id/api
-      - NEXTAUTH_URL=http://ukk.globalaccess.co.id
+      - NEXT_PUBLIC_API_URL=https://ukk.globalaccess.co.id/api
+      - NEXTAUTH_URL=https://ukk.globalaccess.co.id
       - NEXTAUTH_SECRET=ukk_sertifikat_secret_2026
 
   # Nginx Reverse Proxy
@@ -60,7 +60,7 @@ services:
     container_name: sertifikat_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - ./backend:/var/www
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
