@@ -51,6 +51,7 @@ services:
       - sertifikat_net
     environment:
       - NEXT_PUBLIC_API_URL=https://ukk.globalaccess.co.id/api
+      - NEXT_INTERNAL_API_URL=http://nginx/api
       - NEXTAUTH_URL=https://ukk.globalaccess.co.id
       - NEXTAUTH_SECRET=ukk_sertifikat_secret_2026
 

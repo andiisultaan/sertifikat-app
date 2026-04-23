@@ -16,7 +16,9 @@ interface VerifyResult {
 
 async function verifySertifikat(token: string): Promise<VerifyResult> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api"}/verify/${token}`, { cache: "no-store" });
+    // Server components use internal Docker URL to avoid going through public internet
+    const apiUrl = process.env.NEXT_INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
+    const res = await fetch(`${apiUrl}/verify/${token}`, { cache: "no-store" });
     return await res.json();
   } catch {
     return { valid: false, message: "Gagal menghubungi server verifikasi." };
