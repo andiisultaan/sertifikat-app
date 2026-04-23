@@ -20,9 +20,10 @@ class CertificateService
         $sertifikat->update(['status' => 'processing']);
 
         try {
-            // Pastikan qr_token sudah ada
+            // Pastikan qr_token sudah ada — gunakan token deterministik
             if (empty($sertifikat->qr_token)) {
-                $sertifikat->update(['qr_token' => Str::random(32)]);
+                $deterministicToken = substr(hash_hmac('sha256', 'sertifikat-nilai-' . $sertifikat->nilai_id, config('app.key')), 0, 32);
+                $sertifikat->update(['qr_token' => $deterministicToken]);
                 $sertifikat->refresh();
             }
 

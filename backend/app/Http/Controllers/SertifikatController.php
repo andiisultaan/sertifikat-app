@@ -70,16 +70,25 @@ class SertifikatController extends Controller
             ], 422);
         }
 
+        // Token deterministik berbasis nilai_id + app key
+        // Sehingga token selalu sama meski sertifikat dihapus & dibuat ulang
+        $qrToken = substr(hash_hmac('sha256', 'sertifikat-nilai-' . $nilai->id, config('app.key')), 0, 32);
+
         // Buat atau ambil record sertifikat yang sudah ada
         $sertifikat = Sertifikat::firstOrCreate(
             ['nilai_id' => $nilai->id],
             [
                 'template_id'      => $template->id,
                 'nomor_sertifikat' => $this->generateNomor(),
-                'qr_token'         => Str::random(32),
+                'qr_token'         => $qrToken,
                 'status'           => 'pending',
             ]
         );
+
+        // Pastikan qr_token selalu sinkron (update jika berbeda dari yang deterministik)
+        if ($sertifikat->qr_token !== $qrToken) {
+            $sertifikat->update(['qr_token' => $qrToken]);
+        }
 
         // Reset status agar bisa generate ulang
         $sertifikat->update([
