@@ -292,7 +292,13 @@ export function UkkForm({ defaultValues, onSubmit, isPending, mode = "create" }:
   // ── EDIT mode ──────────────────────────────────────────────────────────────
   if (mode === "edit") {
     return (
-      <form onSubmit={handleEditSubmit} className="space-y-4">
+      <form
+        onSubmit={handleEditSubmit}
+        className="space-y-4"
+        onKeyDown={e => {
+          if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") e.preventDefault();
+        }}
+      >
         <div className="flex border-b border-border">
           {TABS.map((label, i) => (
             <button
@@ -321,7 +327,13 @@ export function UkkForm({ defaultValues, onSubmit, isPending, mode = "create" }:
 
   // ── CREATE mode ────────────────────────────────────────────────────────────
   return (
-    <form onSubmit={handleFormSubmit} className="space-y-5">
+    <form
+      onSubmit={handleFormSubmit}
+      className="space-y-5"
+      onKeyDown={e => {
+        if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") e.preventDefault();
+      }}
+    >
       <div className="flex items-center gap-0">
         {STEPS.map((label, i) => (
           <div key={i} className="flex items-center">
