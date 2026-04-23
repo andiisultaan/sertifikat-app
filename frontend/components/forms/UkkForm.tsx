@@ -328,7 +328,7 @@ export function UkkForm({ defaultValues, onSubmit, isPending, mode = "create" }:
   // ── CREATE mode ────────────────────────────────────────────────────────────
   return (
     <form
-      onSubmit={handleFormSubmit}
+      onSubmit={e => e.preventDefault()}
       className="space-y-5"
       onKeyDown={e => {
         if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") e.preventDefault();
@@ -375,7 +375,7 @@ export function UkkForm({ defaultValues, onSubmit, isPending, mode = "create" }:
               </span>
             </Button>
           ) : (
-            <Button type="submit" disabled={isPending}>
+            <Button type="button" disabled={isPending} onClick={() => handleFormSubmit()}>
               {isPending ? "Menyimpan..." : "Simpan"}
             </Button>
           )}
