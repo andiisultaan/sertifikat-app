@@ -1,0 +1,19 @@
+# docker-compose.override.yml — digunakan otomatis saat development (lokal)
+# File ini TIDAK di-deploy ke production
+services:
+  frontend:
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000/api
+        NEXTAUTH_URL: http://localhost:3000
+        NEXTAUTH_SECRET: ukk_sertifikat_secret_dev
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=ukk_sertifikat_secret_dev
+    ports:
+      - "3000:3000"
+
+  nginx:
+    ports:
+      - "8080:80"
