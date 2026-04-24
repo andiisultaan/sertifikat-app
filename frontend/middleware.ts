@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 
 const SUPER_ADMIN_ONLY = ["/users", "/sekolah"];
 const ADMIN_AND_ABOVE = ["/siswa", "/ukk", "/sertifikat", "/sekolah/profil"];
+const PUBLIC_PATHS = ["/cek-nilai"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -15,6 +16,11 @@ export function middleware(request: NextRequest) {
     if (token) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
+    return NextResponse.next();
+  }
+
+  const isPublicPath = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  if (isPublicPath) {
     return NextResponse.next();
   }
 

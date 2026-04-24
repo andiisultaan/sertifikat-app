@@ -139,15 +139,23 @@ export function UkkForm({ defaultValues, onSubmit, isPending, mode = "create" }:
   const pengujianDokFields = useFieldArray({ control, name: "kompetensi.utama.pengujian_dokumentasi" });
   const pendukungFields = useFieldArray({ control, name: "kompetensi.pendukung" });
 
-  const prevIdRef = useRef<number | undefined>(undefined);
+  const prevResetKeyRef = useRef<string>("");
   useEffect(() => {
     if (!defaultValues) return;
-    const newId = defaultValues.id as number | undefined;
-    if (newId === prevIdRef.current) return;
-    prevIdRef.current = newId;
+
+    const resetKey =
+      mode === "edit"
+        ? `edit:${defaultValues.id ?? "no-id"}:${defaultValues.updated_at ?? ""}`
+        : `create:${defaultValues.nama_sekolah ?? ""}|${defaultValues.alamat_sekolah ?? ""}|${defaultValues.nama_kepsek ?? ""}|${defaultValues.nip_kepsek ?? ""}|${defaultValues.nama_universitas ?? ""}`;
+
+    if (resetKey === prevResetKeyRef.current) return;
+    prevResetKeyRef.current = resetKey;
+
     reset(buildResetValues(defaultValues));
-    setActive(0);
-  }, [defaultValues, reset]);
+    if (mode === "edit") {
+      setActive(0);
+    }
+  }, [defaultValues, mode, reset]);
 
   const handleNext = async () => {
     const valid = await trigger(STEP_FIELDS[active]);

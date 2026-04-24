@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CertificateVerifyController;
 use App\Http\Controllers\NilaiController;
+use App\Http\Controllers\PublicNilaiController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\SertifikatController;
 use App\Http\Controllers\SiswaController;
@@ -11,6 +12,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/verify/{token}', [CertificateVerifyController::class, 'verify']);
+Route::get('/public/sekolah', [PublicNilaiController::class, 'schools']);
+Route::get('/public/nilai', [PublicNilaiController::class, 'search']);
 
 Route::post('/login', [AuthController::class, 'login']);
 

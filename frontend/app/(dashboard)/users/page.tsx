@@ -58,8 +58,7 @@ export default function UsersPage() {
     setOpen(true);
   };
   const openEdit = (u: NonNullable<typeof users>[number]) => {
-    const editableRole: ManageableUserRole = u.role === "admin" ? "penguji_internal" : u.role;
-    setForm({ name: u.name, email: u.email, password: "", role: editableRole });
+    setForm({ name: u.name, email: u.email, password: "", role: u.role });
     setEditId(u.id);
     setOpen(true);
   };
@@ -137,6 +136,7 @@ export default function UsersPage() {
               <Label>Role</Label>
               <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value as ManageableUserRole }))} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
                 <option value="super_admin">Super Admin</option>
+                <option value="admin">Admin</option>
                 <option value="penguji_internal">Penguji Internal</option>
                 <option value="penguji_external">Penguji External</option>
               </select>

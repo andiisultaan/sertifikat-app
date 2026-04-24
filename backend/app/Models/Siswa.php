@@ -28,6 +28,13 @@ class Siswa extends Model
         'tanggal_lahir' => 'date',
     ];
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Siswa $siswa): void {
+            $siswa->nilai()->delete();
+        });
+    }
+
     public function nilai(): HasMany
     {
         return $this->hasMany(Nilai::class);

@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const { mutate: login, isPending, error } = useLogin();
@@ -89,6 +90,12 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? 'Masuk...' : 'Masuk'}
             </Button>
+
+            <div className="pt-1 text-center">
+              <Link href="/cek-nilai" className="text-sm text-slate-600 underline-offset-4 hover:underline">
+                Siswa? Cek nilai tanpa login
+              </Link>
+            </div>
           </form>
         </CardContent>
       </Card>

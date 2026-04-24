@@ -15,7 +15,7 @@ export interface UserItem {
   updated_at: string;
 }
 
-export type ManageableUserRole = Exclude<UserRole, 'admin'>;
+export type ManageableUserRole = UserRole;
 
 export interface UserPayload {
   name: string;

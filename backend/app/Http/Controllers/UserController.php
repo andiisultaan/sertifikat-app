@@ -21,7 +21,7 @@ class UserController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'unique:users,email'],
             'password' => ['required', Password::min(8)],
-            'role'     => ['required', 'in:super_admin,penguji_internal,penguji_external'],
+            'role'     => ['required', 'in:super_admin,admin,penguji_internal,penguji_external'],
         ]);
 
         $user = User::create($data);
@@ -40,7 +40,7 @@ class UserController extends Controller
             'name'     => ['sometimes', 'string', 'max:255'],
             'email'    => ['sometimes', 'email', 'unique:users,email,' . $user->id],
             'password' => ['sometimes', 'nullable', Password::min(8)],
-            'role'     => ['sometimes', 'in:super_admin,penguji_internal,penguji_external'],
+            'role'     => ['sometimes', 'in:super_admin,admin,penguji_internal,penguji_external'],
         ]);
 
         if (isset($data['password']) && $data['password'] === null) {
