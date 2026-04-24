@@ -14,6 +14,7 @@ Aplikasi manajemen proses Uji Kompetensi Keahlian (UKK), mulai dari data siswa, 
 - Generate sertifikat PDF untuk siswa dengan status **Lulus**
 - Download sertifikat PDF
 - Verifikasi keaslian sertifikat lewat token QR (`/verify/{token}`)
+- Cek nilai siswa tanpa login lewat halaman publik (`/cek-nilai`)
 - Role-based access:
   - `super_admin`
   - `admin`
@@ -135,6 +136,8 @@ Public:
 
 - `POST /api/login`
 - `GET /api/verify/{token}`
+- `GET /api/public/sekolah`
+- `GET /api/public/nilai?sekolah_id={id}&nis={nis}&nama={nama}`
 
 Authenticated:
 
@@ -158,6 +161,17 @@ Halaman verifikasi tersedia di frontend:
 Halaman ini memanggil API:
 
 - `GET /api/verify/{token}`
+
+## Cek Nilai Publik
+
+Halaman cek nilai tersedia di frontend:
+
+- `GET /cek-nilai`
+
+Halaman ini memanggil API:
+
+- `GET /api/public/sekolah` (daftar sekolah)
+- `GET /api/public/nilai` (wajib `sekolah_id`, lalu isi minimal `nis` atau `nama`)
 
 ## Catatan Penting
 
