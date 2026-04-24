@@ -6,15 +6,22 @@ export interface UserItem {
   name: string;
   email: string;
   role: UserRole;
+  sekolah_id?: number | null;
+  sekolah?: {
+    id: number;
+    nama: string;
+  } | null;
   created_at: string;
   updated_at: string;
 }
+
+export type ManageableUserRole = Exclude<UserRole, 'admin'>;
 
 export interface UserPayload {
   name: string;
   email: string;
   password?: string;
-  role: UserRole;
+  role: ManageableUserRole;
 }
 
 export const userService = {

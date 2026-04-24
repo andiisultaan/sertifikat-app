@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const SUPER_ADMIN_ONLY = ["/users"];
-const ADMIN_AND_ABOVE = ["/siswa", "/ukk", "/sertifikat"];
+const SUPER_ADMIN_ONLY = ["/users", "/sekolah"];
+const ADMIN_AND_ABOVE = ["/siswa", "/ukk", "/sertifikat", "/sekolah/profil"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -25,8 +25,9 @@ export function middleware(request: NextRequest) {
 
   // Super admin only routes
   if (role && role !== "super_admin") {
+    const isSchoolProfileRoute = pathname === "/sekolah/profil" || pathname.startsWith("/sekolah/profil/");
     const blocked = SUPER_ADMIN_ONLY.some(p => pathname === p || pathname.startsWith(p + "/"));
-    if (blocked) {
+    if (blocked && !isSchoolProfileRoute) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }

@@ -6,6 +6,7 @@ import { toast } from "@/lib/toast";
 import { useUserList, useCreateUser, useUpdateUser, useDeleteUser } from "@/lib/hooks/useUsers";
 import { useAuthStore } from "@/store/authStore";
 import { UserRole } from "@/services/api/authService";
+import { ManageableUserRole } from "@/services/api/userService";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +33,7 @@ interface UserFormState {
   name: string;
   email: string;
   password: string;
-  role: UserRole;
+  role: ManageableUserRole;
 }
 
 const emptyForm: UserFormState = { name: "", email: "", password: "", role: "penguji_internal" };
@@ -57,7 +58,8 @@ export default function UsersPage() {
     setOpen(true);
   };
   const openEdit = (u: NonNullable<typeof users>[number]) => {
-    setForm({ name: u.name, email: u.email, password: "", role: u.role });
+    const editableRole: ManageableUserRole = u.role === "admin" ? "penguji_internal" : u.role;
+    setForm({ name: u.name, email: u.email, password: "", role: editableRole });
     setEditId(u.id);
     setOpen(true);
   };
@@ -133,9 +135,8 @@ export default function UsersPage() {
             </div>
             <div className="space-y-1">
               <Label>Role</Label>
-              <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value as UserRole }))} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
+              <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value as ManageableUserRole }))} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm">
                 <option value="super_admin">Super Admin</option>
-                <option value="admin">Admin</option>
                 <option value="penguji_internal">Penguji Internal</option>
                 <option value="penguji_external">Penguji External</option>
               </select>
@@ -155,7 +156,7 @@ export default function UsersPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>
-              {["Nama", "Email", "Role", "Aksi"].map(h => (
+              {["Nama", "Email", "Role", "Sekolah", "Aksi"].map(h => (
                 <th key={h} className="px-4 py-3 text-left font-semibold text-gray-600">
                   {h}
                 </th>
@@ -163,12 +164,12 @@ export default function UsersPage() {
             </tr>
           </thead>
           {isLoading ? (
-            <SkeletonTableRows cols={4} widths={["w-36", "w-48", "w-28", "w-16"]} />
+            <SkeletonTableRows cols={5} widths={["w-36", "w-48", "w-28", "w-36", "w-16"]} />
           ) : (
             <tbody className="divide-y">
               {users?.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-gray-400">
+                  <td colSpan={5} className="px-4 py-8 text-center text-gray-400">
                     Tidak ada data pengguna.
                   </td>
                 </tr>
@@ -185,6 +186,7 @@ export default function UsersPage() {
                       {roleLabel[u.role]}
                     </Badge>
                   </td>
+                  <td className="px-4 py-3 text-muted-foreground">{u.sekolah?.nama ?? "-"}</td>
                   <td className="px-4 py-3 flex gap-1">
                     <Button variant="outline" size="icon-sm" onClick={() => openEdit(u)}>
                       <Pencil className="size-3.5" />

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Award, BarChart3, BookOpen, GraduationCap, LayoutDashboard, ShieldCheck, Users } from "lucide-react";
+import { Award, BarChart3, BookOpen, Building2, GraduationCap, LayoutDashboard, ShieldCheck, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { useAuthStore } from "@/store/authStore";
@@ -14,6 +14,8 @@ type NavItem = { title: string; url: string; icon: LucideIcon; roles?: UserRole[
 
 const allNavItems: NavItem[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Sekolah", url: "/sekolah", icon: Building2, roles: ["super_admin"] },
+  { title: "Profil Sekolah", url: "/sekolah/profil", icon: Building2, roles: ["admin"] },
   { title: "Siswa", url: "/siswa", icon: Users, roles: ["super_admin", "admin"] },
   { title: "UKK", url: "/ukk", icon: BookOpen, roles: ["super_admin", "admin"] },
   { title: "Nilai", url: "/nilai", icon: BarChart3 },
@@ -40,7 +42,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton render={<a href="/dashboard" />} className="data-[slot=sidebar-menu-button]:p-1.5!">
               <GraduationCap className="size-5!" />
-              <span className="text-base font-semibold">Sertifikat UKK</span>
+              <div className="flex flex-col">
+                <span className="text-base font-semibold leading-tight">Sertifikat UKK</span>
+                {role === "admin" && user?.sekolah?.nama ? (
+                  <span className="text-[11px] text-muted-foreground leading-tight">{user.sekolah.nama}</span>
+                ) : null}
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

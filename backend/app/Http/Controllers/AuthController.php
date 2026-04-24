@@ -24,14 +24,14 @@ class AuthController extends Controller
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
-            'user'  => $user,
+            'user'  => $user->load('sekolah'),
             'token' => $token,
         ]);
     }
 
     public function me(Request $request): JsonResponse
     {
-        return response()->json($request->user());
+        return response()->json($request->user()->load('sekolah'));
     }
 
     public function logout(Request $request): JsonResponse

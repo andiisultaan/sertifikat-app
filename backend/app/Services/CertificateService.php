@@ -27,9 +27,10 @@ class CertificateService
                 $sertifikat->refresh();
             }
 
-            $nilai  = $sertifikat->nilai()->with(['siswa', 'ukk'])->firstOrFail();
+            $nilai  = $sertifikat->nilai()->with(['siswa', 'ukk.sekolah'])->firstOrFail();
             $siswa  = $nilai->siswa;
             $ukk    = $nilai->ukk;
+            $sekolah = $ukk?->sekolah;
 
             if (!$siswa) {
                 throw new \RuntimeException("Data siswa tidak ditemukan untuk nilai ID {$nilai->id}.");
@@ -62,13 +63,13 @@ class CertificateService
                 'nomor_sertifikat'       => $sertifikat->nomor_sertifikat,
                 'tanggal_terbit'         => now()->toDateString(),
                 'kompetensi'             => $ukk->kompetensi ?? [],
-                'nama_sekolah'           => $ukk->nama_sekolah,
-                'alamat_sekolah'         => $ukk->alamat_sekolah,
-                'nama_kepsek'            => $ukk->nama_kepsek,
-                'nip_kepsek'             => $ukk->nip_kepsek,
+                'nama_sekolah'           => $ukk->nama_sekolah ?: $sekolah?->nama,
+                'alamat_sekolah'         => $ukk->alamat_sekolah ?: $sekolah?->alamat,
+                'nama_kepsek'            => $ukk->nama_kepsek ?: $sekolah?->nama_kepsek,
+                'nip_kepsek'             => $ukk->nip_kepsek ?: $sekolah?->nip_kepsek,
                 'nama_penguji_internal'  => $ukk->nama_penguji_internal,
                 'nama_penguji_external'  => $ukk->nama_penguji_external,
-                'nama_universitas'       => $ukk->nama_universitas,
+                'nama_universitas'       => $ukk->nama_universitas ?: $sekolah?->nama_universitas,
                 'qr_base64'              => $qrBase64,
                 'verify_url'             => $verifyUrl,
             ];

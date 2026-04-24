@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(User::orderBy('name')->get());
+        return response()->json(User::with('sekolah')->orderBy('name')->get());
     }
 
     public function store(Request $request): JsonResponse
@@ -21,7 +21,7 @@ class UserController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'unique:users,email'],
             'password' => ['required', Password::min(8)],
-            'role'     => ['required', 'in:super_admin,admin,penguji_internal,penguji_external'],
+            'role'     => ['required', 'in:super_admin,penguji_internal,penguji_external'],
         ]);
 
         $user = User::create($data);
@@ -31,7 +31,7 @@ class UserController extends Controller
 
     public function show(User $user): JsonResponse
     {
-        return response()->json($user);
+        return response()->json($user->load('sekolah'));
     }
 
     public function update(Request $request, User $user): JsonResponse
@@ -40,7 +40,7 @@ class UserController extends Controller
             'name'     => ['sometimes', 'string', 'max:255'],
             'email'    => ['sometimes', 'email', 'unique:users,email,' . $user->id],
             'password' => ['sometimes', 'nullable', Password::min(8)],
-            'role'     => ['sometimes', 'in:super_admin,admin,penguji_internal,penguji_external'],
+            'role'     => ['sometimes', 'in:super_admin,penguji_internal,penguji_external'],
         ]);
 
         if (isset($data['password']) && $data['password'] === null) {
@@ -49,7 +49,7 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return response()->json($user);
+        return response()->json($user->fresh('sekolah'));
     }
 
     public function destroy(User $user): JsonResponse

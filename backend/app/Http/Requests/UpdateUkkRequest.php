@@ -14,6 +14,7 @@ class UpdateUkkRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'sekolah_id'             => ['sometimes', 'nullable', 'exists:sekolah,id'],
             'nama'                   => ['sometimes', 'string', 'max:255'],
             'judul_pengujian'        => ['sometimes', 'nullable', 'string'],
             'jurusan'                => ['sometimes', 'string', 'max:100'],

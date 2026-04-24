@@ -8,6 +8,11 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  sekolah_id?: number | null;
+  sekolah?: {
+    id: number;
+    nama: string;
+  } | null;
   created_at: string;
   updated_at: string;
 }

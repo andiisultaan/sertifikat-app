@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -13,6 +14,7 @@ class Siswa extends Model
     protected $table = 'siswa';
 
     protected $fillable = [
+        'sekolah_id',
         'nis',
         'nama',
         'tempat_lahir',
@@ -29,5 +31,10 @@ class Siswa extends Model
     public function nilai(): HasMany
     {
         return $this->hasMany(Nilai::class);
+    }
+
+    public function sekolah(): BelongsTo
+    {
+        return $this->belongsTo(Sekolah::class);
     }
 }

@@ -14,6 +14,7 @@ class StoreUkkRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'sekolah_id'      => ['sometimes', 'nullable', 'exists:sekolah,id'],
             'nama'            => ['required', 'string', 'max:255'],
             'jurusan'         => ['required', 'string', 'max:100'],
             'tahun'           => ['required', 'integer', 'min:2000', 'max:2100'],

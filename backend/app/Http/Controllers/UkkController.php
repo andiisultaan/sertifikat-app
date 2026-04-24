@@ -14,9 +14,12 @@ class UkkController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $sekolahId = $this->getSekolahId($request);
+
         $ukk = $this->repo->paginate(
             perPage: (int) $request->get('per_page', 15),
             search: $request->get('search'),
+            sekolahId: $sekolahId,
         );
 
         return response()->json($ukk);
@@ -24,28 +27,44 @@ class UkkController extends Controller
 
     public function store(StoreUkkRequest $request): JsonResponse
     {
-        $ukk = $this->repo->create($request->validated());
+        $data = $request->validated();
+        if ($sekolahId = $this->getSekolahId($request)) {
+            $data['sekolah_id'] = $sekolahId;
+        }
+
+        $ukk = $this->repo->create($data);
 
         return response()->json($ukk, 201);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
-        return response()->json($this->repo->findById($id));
+        return response()->json($this->repo->findById($id, $this->getSekolahId($request)));
     }
 
     public function update(UpdateUkkRequest $request, int $id): JsonResponse
     {
-        $ukk = $this->repo->findById($id);
+        $sekolahId = $this->getSekolahId($request);
+        $ukk = $this->repo->findById($id, $sekolahId);
+        $data = $request->validated();
 
-        return response()->json($this->repo->update($ukk, $request->validated()));
+        if ($sekolahId) {
+            $data['sekolah_id'] = $sekolahId;
+        }
+
+        return response()->json($this->repo->update($ukk, $data));
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
-        $ukk = $this->repo->findById($id);
+        $ukk = $this->repo->findById($id, $this->getSekolahId($request));
         $this->repo->delete($ukk);
 
         return response()->json(['message' => 'UKK berhasil dihapus.']);
+    }
+
+    private function getSekolahId(Request $request): ?int
+    {
+        return $request->integer('_sekolah_id') ?: null;
     }
 }

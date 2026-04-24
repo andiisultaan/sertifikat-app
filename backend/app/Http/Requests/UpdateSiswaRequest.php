@@ -16,6 +16,7 @@ class UpdateSiswaRequest extends FormRequest
         $siswaId = $this->route('siswa');
 
         return [
+            'sekolah_id'     => ['sometimes', 'nullable', 'exists:sekolah,id'],
             'nis'            => ['sometimes', 'string', 'max:20', "unique:siswa,nis,{$siswaId}"],
             'nama'           => ['sometimes', 'string', 'max:255'],
             'tempat_lahir'   => ['sometimes', 'string', 'max:100'],

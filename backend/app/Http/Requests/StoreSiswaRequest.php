@@ -14,6 +14,7 @@ class StoreSiswaRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'sekolah_id'     => ['sometimes', 'nullable', 'exists:sekolah,id'],
             'nis'            => ['required', 'string', 'max:20', 'unique:siswa,nis'],
             'nama'           => ['required', 'string', 'max:255'],
             'tempat_lahir'   => ['required', 'string', 'max:100'],

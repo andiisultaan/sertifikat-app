@@ -21,9 +21,10 @@ class SertifikatController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $sertifikat = Sertifikat::with(['nilai.siswa', 'nilai.ukk', 'template'])
-            ->latest()
-            ->paginate((int) $request->query('per_page', 15));
+        $sertifikat = $this->applySekolahScope(
+            Sertifikat::with(['nilai.siswa', 'nilai.ukk', 'template']),
+            $request
+        )->latest()->paginate((int) $request->query('per_page', 15));
 
         return response()->json($sertifikat);
     }
@@ -31,9 +32,12 @@ class SertifikatController extends Controller
     /**
      * Detail satu sertifikat.
      */
-    public function show(int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
-        $sertifikat = Sertifikat::with(['nilai.siswa', 'nilai.ukk', 'template'])->findOrFail($id);
+        $sertifikat = $this->applySekolahScope(
+            Sertifikat::with(['nilai.siswa', 'nilai.ukk', 'template']),
+            $request
+        )->findOrFail($id);
 
         return response()->json($sertifikat);
     }
@@ -48,7 +52,7 @@ class SertifikatController extends Controller
             'nilai_id' => ['required', 'exists:nilai,id'],
         ]);
 
-        $nilai = Nilai::findOrFail($request->nilai_id);
+        $nilai = $this->applySekolahScope(Nilai::query(), $request)->findOrFail($request->nilai_id);
 
         if (! $nilai->is_finalized && $nilai->nilai_akhir === null) {
             return response()->json([
@@ -109,9 +113,12 @@ class SertifikatController extends Controller
     /**
      * Download PDF sertifikat.
      */
-    public function download(int $id): BinaryFileResponse|JsonResponse
+    public function download(Request $request, int $id): BinaryFileResponse|JsonResponse
     {
-        $sertifikat = Sertifikat::with('nilai.siswa')->findOrFail($id);
+        $sertifikat = $this->applySekolahScope(
+            Sertifikat::with('nilai.siswa'),
+            $request
+        )->findOrFail($id);
 
         if ($sertifikat->status !== 'selesai' || ! $sertifikat->file_path) {
             return response()->json(['message' => 'PDF belum tersedia.'], 404);
@@ -134,9 +141,9 @@ class SertifikatController extends Controller
     /**
      * Hapus sertifikat beserta file PDF-nya.
      */
-    public function destroy(int $id): JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
-        $sertifikat = Sertifikat::findOrFail($id);
+        $sertifikat = $this->applySekolahScope(Sertifikat::query(), $request)->findOrFail($id);
 
         if ($sertifikat->file_path && Storage::disk('public')->exists($sertifikat->file_path)) {
             Storage::disk('public')->delete($sertifikat->file_path);
@@ -153,5 +160,20 @@ class SertifikatController extends Controller
         $urutan = str_pad(Sertifikat::whereYear('created_at', $tahun)->count() + 1, 4, '0', STR_PAD_LEFT);
 
         return "SKT/{$tahun}/{$urutan}";
+    }
+
+    private function applySekolahScope($query, Request $request)
+    {
+        $sekolahId = $request->integer('_sekolah_id') ?: null;
+
+        if (! $sekolahId) {
+            return $query;
+        }
+
+        if ($query instanceof \Illuminate\Database\Eloquent\Builder && $query->getModel() instanceof Nilai) {
+            return $query->whereHas('ukk', fn ($ukkQuery) => $ukkQuery->where('sekolah_id', $sekolahId));
+        }
+
+        return $query->whereHas('nilai.ukk', fn ($ukkQuery) => $ukkQuery->where('sekolah_id', $sekolahId));
     }
 }
