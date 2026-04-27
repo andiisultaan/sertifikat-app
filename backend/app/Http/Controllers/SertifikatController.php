@@ -165,6 +165,9 @@ class SertifikatController extends Controller
     private function applySekolahScope($query, Request $request)
     {
         $sekolahId = $request->integer('_sekolah_id') ?: null;
+        if (! $sekolahId && $request->user()?->isSuperAdmin()) {
+            $sekolahId = $request->integer('sekolah_id') ?: null;
+        }
 
         if (! $sekolahId) {
             return $query;

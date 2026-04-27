@@ -57,7 +57,7 @@ export interface UkkPayload {
 }
 
 export const ukkService = {
-  async list(params?: { page?: number; per_page?: number; search?: string }) {
+  async list(params?: { page?: number; per_page?: number; search?: string; sekolah_id?: number }) {
     const { data } = await api.get<PaginatedResponse<Ukk>>("/ukk", { params });
     return data;
   },

@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { toast } from '@/lib/toast';
+import { useAuthStore } from '@/store/authStore';
 
 import { useSiswaList, useSiswa, useCreateSiswa, useUpdateSiswa, useDeleteSiswa } from '@/lib/hooks/useSiswa';
+import { useSekolahList } from '@/lib/hooks/useSekolah';
 import { SiswaFormValues } from '@/lib/validations/siswaSchema';
 import { SiswaForm } from '@/components/forms/SiswaForm';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,13 +24,21 @@ import {
 } from '@/components/ui/dialog';
 
 export default function SiswaPage() {
+  const { user } = useAuthStore();
+  const isSuperAdmin = user?.role === 'super_admin';
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [sekolahId, setSekolahId] = useState<number | undefined>(undefined);
   const [open, setOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; nama: string } | null>(null);
 
-  const { data, isLoading } = useSiswaList({ page, search: search || undefined });
+  const { data, isLoading } = useSiswaList({
+    page,
+    search: search || undefined,
+    sekolah_id: isSuperAdmin ? sekolahId : undefined,
+  });
+  const { data: sekolahList } = useSekolahList({ enabled: isSuperAdmin });
   const { mutate: deleteSiswa, isPending: isDeleting } = useDeleteSiswa();
   const { mutate: createSiswa, isPending, error } = useCreateSiswa();
   const { data: editSiswa, isLoading: editLoading } = useSiswa(editTarget ?? 0);
@@ -126,12 +136,32 @@ export default function SiswaPage() {
 
       <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
         <div className="p-4 border-b">
-          <Input
-            placeholder="Cari nama atau NIS..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="max-w-xs"
-          />
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Input
+              placeholder="Cari nama atau NIS..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              className="w-full sm:max-w-xs"
+            />
+            {isSuperAdmin && (
+              <select
+                value={sekolahId ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSekolahId(value ? Number(value) : undefined);
+                  setPage(1);
+                }}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm sm:max-w-xs"
+              >
+                <option value="">Semua sekolah</option>
+                {sekolahList?.map((sekolah) => (
+                  <option key={sekolah.id} value={sekolah.id}>
+                    {sekolah.nama}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
 
         <table className="w-full text-sm">

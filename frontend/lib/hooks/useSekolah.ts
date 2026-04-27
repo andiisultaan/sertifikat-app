@@ -8,10 +8,11 @@ const KEYS = {
   detail: (id: number) => ["sekolah", id] as const,
 };
 
-export function useSekolahList() {
+export function useSekolahList(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: KEYS.list,
     queryFn: () => sekolahService.list(),
+    enabled: options?.enabled ?? true,
   });
 }
 

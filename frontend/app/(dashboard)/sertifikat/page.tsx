@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Trash2, Printer, Loader2 } from "lucide-react";
 import { useSertifikatList, useGenerateSertifikat, useDeleteSertifikat } from "@/lib/hooks/useSertifikat";
 import { useNilaiList } from "@/lib/hooks/useNilai";
+import { useSekolahList } from "@/lib/hooks/useSekolah";
+import { useAuthStore } from "@/store/authStore";
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge-2";
@@ -30,13 +32,23 @@ const statusLabel: Record<Sertifikat["status"], string> = {
 };
 
 export default function SertifikatPage() {
+  const { user } = useAuthStore();
+  const isSuperAdmin = user?.role === "super_admin";
   const [tab, setTab] = useState<"sertifikat" | "generate">("sertifikat");
   const [page, setPage] = useState(1);
+  const [sekolahId, setSekolahId] = useState<number | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
 
-  const { data: sertifikatData, isLoading: loadingSertifikat } = useSertifikatList({ page });
-  const { data: nilaiData, isLoading: loadingNilai } = useNilaiList({ per_page: 100 });
+  const { data: sertifikatData, isLoading: loadingSertifikat } = useSertifikatList({
+    page,
+    sekolah_id: isSuperAdmin ? sekolahId : undefined,
+  });
+  const { data: nilaiData, isLoading: loadingNilai } = useNilaiList({
+    per_page: 100,
+    sekolah_id: isSuperAdmin ? sekolahId : undefined,
+  });
+  const { data: sekolahList } = useSekolahList({ enabled: isSuperAdmin });
   const { mutate: generate, isPending: generating } = useGenerateSertifikat();
   const { mutate: deleteSertifikat, isPending: isDeleting } = useDeleteSertifikat();
 
@@ -76,6 +88,26 @@ export default function SertifikatPage() {
             </button>
           ))}
         </div>
+        {isSuperAdmin && (
+          <div className="mt-4">
+            <select
+              value={sekolahId ?? ""}
+              onChange={e => {
+                const value = e.target.value;
+                setSekolahId(value ? Number(value) : undefined);
+                setPage(1);
+              }}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm sm:max-w-xs"
+            >
+              <option value="">Semua sekolah</option>
+              {sekolahList?.map(sekolah => (
+                <option key={sekolah.id} value={sekolah.id}>
+                  {sekolah.nama}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       <ConfirmDialog

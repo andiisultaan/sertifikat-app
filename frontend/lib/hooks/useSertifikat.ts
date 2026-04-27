@@ -8,7 +8,7 @@ const KEYS = {
   detail: (id: number) => ['sertifikat', id],
 };
 
-export function useSertifikatList(params?: { page?: number; per_page?: number }) {
+export function useSertifikatList(params?: { page?: number; per_page?: number; sekolah_id?: number }) {
   return useQuery({
     queryKey: KEYS.list(params),
     queryFn: () => sertifikatService.list(params),

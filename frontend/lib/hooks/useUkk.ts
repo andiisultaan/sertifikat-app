@@ -8,7 +8,7 @@ const KEYS = {
   detail: (id: number) => ['ukk', id],
 };
 
-export function useUkkList(params?: { page?: number; per_page?: number; search?: string }) {
+export function useUkkList(params?: { page?: number; per_page?: number; search?: string; sekolah_id?: number }) {
   return useQuery({
     queryKey: KEYS.list(params),
     queryFn: () => ukkService.list(params),

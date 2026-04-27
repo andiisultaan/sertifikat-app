@@ -6,6 +6,8 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { Badge } from "@/components/ui/badge-2";
 import { useUkkList, useDeleteUkk } from "@/lib/hooks/useUkk";
+import { useSekolahList } from "@/lib/hooks/useSekolah";
+import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -14,11 +16,19 @@ import { Pagination } from "@/components/ui/pagination";
 
 export default function UkkPage() {
   const router = useRouter();
+  const { user } = useAuthStore();
+  const isSuperAdmin = user?.role === "super_admin";
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [sekolahId, setSekolahId] = useState<number | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; nama: string } | null>(null);
 
-  const { data, isLoading } = useUkkList({ page, search: search || undefined });
+  const { data, isLoading } = useUkkList({
+    page,
+    search: search || undefined,
+    sekolah_id: isSuperAdmin ? sekolahId : undefined,
+  });
+  const { data: sekolahList } = useSekolahList({ enabled: isSuperAdmin });
   const { mutate: deleteUkk, isPending: isDeleting } = useDeleteUkk();
 
   const handleDelete = () => {
@@ -53,15 +63,35 @@ export default function UkkPage() {
 
       <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
         <div className="p-4 border-b">
-          <Input
-            placeholder="Cari nama atau jurusan..."
-            value={search}
-            onChange={e => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="max-w-xs"
-          />
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Input
+              placeholder="Cari nama atau jurusan..."
+              value={search}
+              onChange={e => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full sm:max-w-xs"
+            />
+            {isSuperAdmin && (
+              <select
+                value={sekolahId ?? ""}
+                onChange={e => {
+                  const value = e.target.value;
+                  setSekolahId(value ? Number(value) : undefined);
+                  setPage(1);
+                }}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm sm:max-w-xs"
+              >
+                <option value="">Semua sekolah</option>
+                {sekolahList?.map(sekolah => (
+                  <option key={sekolah.id} value={sekolah.id}>
+                    {sekolah.nama}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
 
         <table className="w-full text-sm">

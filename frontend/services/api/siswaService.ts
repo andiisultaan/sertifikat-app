@@ -32,7 +32,7 @@ export interface PaginatedResponse<T> {
 }
 
 export const siswaService = {
-  async list(params?: { page?: number; per_page?: number; search?: string }) {
+  async list(params?: { page?: number; per_page?: number; search?: string; sekolah_id?: number }) {
     const { data } = await api.get<PaginatedResponse<Siswa>>('/siswa', { params });
     return data;
   },

@@ -17,7 +17,6 @@ interface SekolahFormState {
   alamat: string;
   nama_kepsek: string;
   nip_kepsek: string;
-  nama_universitas: string;
 }
 
 const emptyForm: SekolahFormState = {
@@ -25,7 +24,6 @@ const emptyForm: SekolahFormState = {
   alamat: "",
   nama_kepsek: "",
   nip_kepsek: "",
-  nama_universitas: "",
 };
 
 export default function SekolahPage() {
@@ -75,7 +73,6 @@ export default function SekolahPage() {
       alamat: sekolah.alamat ?? "",
       nama_kepsek: sekolah.nama_kepsek ?? "",
       nip_kepsek: sekolah.nip_kepsek ?? "",
-      nama_universitas: sekolah.nama_universitas ?? "",
     });
     setEditOpen(true);
   };
@@ -179,10 +176,6 @@ export default function SekolahPage() {
             <div className="space-y-1">
               <Label>NIP Kepsek</Label>
               <Input value={editForm.nip_kepsek} onChange={(e) => setEditForm(f => ({ ...f, nip_kepsek: e.target.value }))} />
-            </div>
-            <div className="space-y-1 md:col-span-2">
-              <Label>Nama Universitas</Label>
-              <Input value={editForm.nama_universitas} onChange={(e) => setEditForm(f => ({ ...f, nama_universitas: e.target.value }))} />
             </div>
             <div className="flex justify-end md:col-span-2">
               <Button type="submit" disabled={isUpdating}>

@@ -21,6 +21,9 @@ class NilaiController extends Controller
     public function index(Request $request): JsonResponse
     {
         $sekolahId = $this->getSekolahId($request);
+        if (! $sekolahId && $request->user()?->isSuperAdmin()) {
+            $sekolahId = $request->integer('sekolah_id') ?: null;
+        }
 
         $nilai = $this->repo->paginate(
             perPage: (int) $request->get('per_page', 15),

@@ -17,7 +17,7 @@ export interface Sertifikat {
 }
 
 export const sertifikatService = {
-  async list(params?: { page?: number; per_page?: number }) {
+  async list(params?: { page?: number; per_page?: number; sekolah_id?: number }) {
     const { data } = await api.get<PaginatedResponse<Sertifikat>>('/sertifikat', { params });
     return data;
   },

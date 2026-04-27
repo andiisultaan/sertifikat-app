@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNilaiList, useCreateNilai, useUpdateNilai, useDeleteNilai, useNilai } from "@/lib/hooks/useNilai";
 import { useSiswaList } from "@/lib/hooks/useSiswa";
 import { useUkkList } from "@/lib/hooks/useUkk";
+import { useSekolahList } from "@/lib/hooks/useSekolah";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "@/lib/toast";
 import { nilaiSchema, updateNilaiSchema, NilaiFormValues, UpdateNilaiFormValues } from "@/lib/validations/nilaiSchema";
@@ -22,10 +23,20 @@ import { Pagination } from "@/components/ui/pagination";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // ── Modal Tambah Nilai ──────────────────────────────────────────────────────
-function TambahNilaiModal({ open, onOpenChange, role }: { open: boolean; onOpenChange: (v: boolean) => void; role: string | undefined }) {
+function TambahNilaiModal({
+  open,
+  onOpenChange,
+  role,
+  sekolahId,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  role: string | undefined;
+  sekolahId?: number;
+}) {
   const { mutate: create, isPending, error, reset: resetMutation } = useCreateNilai();
-  const { data: siswaData } = useSiswaList({ per_page: 100 });
-  const { data: ukkData } = useUkkList({ per_page: 100 });
+  const { data: siswaData } = useSiswaList({ per_page: 100, sekolah_id: sekolahId });
+  const { data: ukkData } = useUkkList({ per_page: 100, sekolah_id: sekolahId });
 
   const canInternal = role === "super_admin" || role === "admin" || role === "penguji_internal";
   const canEksternal = role === "super_admin" || role === "admin" || role === "penguji_external";
@@ -213,14 +224,17 @@ function EditNilaiModal({ nilaiId, open, onOpenChange, role }: { nilaiId: number
 
 export default function NilaiPage() {
   const [page, setPage] = useState(1);
+  const [sekolahId, setSekolahId] = useState<number | undefined>(undefined);
   const [tambahOpen, setTambahOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null);
 
   const { user } = useAuthStore();
-  const isSuperAdmin = user?.role === "super_admin" || user?.role === "admin";
+  const isSuperAdmin = user?.role === "super_admin";
+  const canDelete = user?.role === "super_admin" || user?.role === "admin";
 
-  const { data, isLoading } = useNilaiList({ page });
+  const { data, isLoading } = useNilaiList({ page, sekolah_id: isSuperAdmin ? sekolahId : undefined });
+  const { data: sekolahList } = useSekolahList({ enabled: isSuperAdmin });
   const { mutate: deleteNilai, isPending: isDeleting } = useDeleteNilai();
 
   const nilaiVariant = (status: string | null) => {
@@ -249,7 +263,7 @@ export default function NilaiPage() {
         </Button>
       </div>
 
-      <TambahNilaiModal open={tambahOpen} onOpenChange={setTambahOpen} role={user?.role} />
+      <TambahNilaiModal open={tambahOpen} onOpenChange={setTambahOpen} role={user?.role} sekolahId={isSuperAdmin ? sekolahId : undefined} />
       <EditNilaiModal
         nilaiId={editId}
         open={editId !== null}
@@ -269,6 +283,26 @@ export default function NilaiPage() {
       />
 
       <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+        {isSuperAdmin && (
+          <div className="p-4 border-b">
+            <select
+              value={sekolahId ?? ""}
+              onChange={e => {
+                const value = e.target.value;
+                setSekolahId(value ? Number(value) : undefined);
+                setPage(1);
+              }}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm sm:max-w-xs"
+            >
+              <option value="">Semua sekolah</option>
+              {sekolahList?.map(sekolah => (
+                <option key={sekolah.id} value={sekolah.id}>
+                  {sekolah.nama}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>
@@ -306,7 +340,7 @@ export default function NilaiPage() {
                       <Pencil className="size-3.5" />
                       <span className="sr-only">Edit</span>
                     </Button>
-                    {isSuperAdmin && (
+                    {canDelete && (
                       <Button variant="destructive" size="icon-sm" onClick={() => setDeleteTarget({ id: n.id, label: n.siswa?.nama ?? `#${n.siswa_id}` })}>
                         <Trash2 className="size-3.5" />
                         <span className="sr-only">Hapus</span>

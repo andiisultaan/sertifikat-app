@@ -8,7 +8,7 @@ const KEYS = {
   detail: (id: number) => ['siswa', id],
 };
 
-export function useSiswaList(params?: { page?: number; per_page?: number; search?: string }) {
+export function useSiswaList(params?: { page?: number; per_page?: number; search?: string; sekolah_id?: number }) {
   return useQuery({
     queryKey: KEYS.list(params),
     queryFn: () => siswaService.list(params),

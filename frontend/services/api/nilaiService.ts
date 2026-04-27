@@ -32,7 +32,7 @@ export interface UpdateNilaiPayload {
 }
 
 export const nilaiService = {
-  async list(params?: { page?: number; per_page?: number; ukk_id?: number; siswa_id?: number }) {
+  async list(params?: { page?: number; per_page?: number; ukk_id?: number; siswa_id?: number; sekolah_id?: number }) {
     const { data } = await api.get<PaginatedResponse<Nilai>>("/nilai", { params });
     return data;
   },

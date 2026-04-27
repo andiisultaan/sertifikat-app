@@ -8,7 +8,7 @@ const KEYS = {
   detail: (id: number) => ['nilai', id],
 };
 
-export function useNilaiList(params?: { page?: number; per_page?: number; ukk_id?: number; siswa_id?: number }) {
+export function useNilaiList(params?: { page?: number; per_page?: number; ukk_id?: number; siswa_id?: number; sekolah_id?: number }) {
   return useQuery({
     queryKey: KEYS.list(params),
     queryFn: () => nilaiService.list(params),
