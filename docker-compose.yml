@@ -99,6 +99,21 @@ services:
     networks:
       - sertifikat_net
 
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: sertifikat_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    depends_on:
+      - db
+    networks:
+      - sertifikat_net
+
 networks:
   sertifikat_net:
     driver: bridge
