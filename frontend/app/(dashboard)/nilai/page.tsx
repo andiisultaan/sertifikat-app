@@ -23,17 +23,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // ── Modal Tambah Nilai ──────────────────────────────────────────────────────
-function TambahNilaiModal({
-  open,
-  onOpenChange,
-  role,
-  sekolahId,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  role: string | undefined;
-  sekolahId?: number;
-}) {
+function TambahNilaiModal({ open, onOpenChange, role, sekolahId }: { open: boolean; onOpenChange: (v: boolean) => void; role: string | undefined; sekolahId?: number }) {
   const { mutate: create, isPending, error, reset: resetMutation } = useCreateNilai();
   const { data: siswaData } = useSiswaList({ per_page: 100, sekolah_id: sekolahId });
   const { data: ukkData } = useUkkList({ per_page: 100, sekolah_id: sekolahId });
@@ -231,9 +221,13 @@ export default function NilaiPage() {
 
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role === "super_admin";
-  const canDelete = user?.role === "super_admin" || user?.role === "admin";
+  const isAdmin = user?.role === "admin";
+  const canDelete = isSuperAdmin || isAdmin;
 
-  const { data, isLoading } = useNilaiList({ page, sekolah_id: isSuperAdmin ? sekolahId : undefined });
+  // For admin, always scope to their sekolah. For super_admin, use the selected filter.
+  const effectiveSekolahId = isAdmin ? (user?.sekolah_id ?? undefined) : isSuperAdmin ? sekolahId : undefined;
+
+  const { data, isLoading } = useNilaiList({ page, sekolah_id: effectiveSekolahId });
   const { data: sekolahList } = useSekolahList({ enabled: isSuperAdmin });
   const { mutate: deleteNilai, isPending: isDeleting } = useDeleteNilai();
 
@@ -263,7 +257,7 @@ export default function NilaiPage() {
         </Button>
       </div>
 
-      <TambahNilaiModal open={tambahOpen} onOpenChange={setTambahOpen} role={user?.role} sekolahId={isSuperAdmin ? sekolahId : undefined} />
+      <TambahNilaiModal open={tambahOpen} onOpenChange={setTambahOpen} role={user?.role} sekolahId={effectiveSekolahId} />
       <EditNilaiModal
         nilaiId={editId}
         open={editId !== null}

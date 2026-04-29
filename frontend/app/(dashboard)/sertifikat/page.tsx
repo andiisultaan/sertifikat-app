@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Trash2, Printer, Loader2 } from "lucide-react";
+import { KeyRound, Loader2, Printer, Trash2 } from "lucide-react";
 import { useSertifikatList, useGenerateSertifikat, useDeleteSertifikat } from "@/lib/hooks/useSertifikat";
 import { useNilaiList } from "@/lib/hooks/useNilai";
-import { useSekolahList } from "@/lib/hooks/useSekolah";
+import { useSekolahList, useSignatureKeyStatus, useGenerateSignatureKey } from "@/lib/hooks/useSekolah";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
@@ -34,23 +34,33 @@ const statusLabel: Record<Sertifikat["status"], string> = {
 export default function SertifikatPage() {
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role === "super_admin";
-  const [tab, setTab] = useState<"sertifikat" | "generate">("sertifikat");
+  const isAdmin = user?.role === "admin";
+  const [tab, setTab] = useState<"sertifikat" | "generate" | "tanda-tangan">("sertifikat");
   const [page, setPage] = useState(1);
   const [sekolahId, setSekolahId] = useState<number | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
 
+  // Admin always scoped to their own sekolah; super_admin can filter freely
+  const effectiveSekolahId = isAdmin ? (user?.sekolah_id ?? undefined) : isSuperAdmin ? sekolahId : undefined;
+
   const { data: sertifikatData, isLoading: loadingSertifikat } = useSertifikatList({
     page,
-    sekolah_id: isSuperAdmin ? sekolahId : undefined,
+    sekolah_id: effectiveSekolahId,
   });
   const { data: nilaiData, isLoading: loadingNilai } = useNilaiList({
     per_page: 100,
-    sekolah_id: isSuperAdmin ? sekolahId : undefined,
+    sekolah_id: effectiveSekolahId,
   });
   const { data: sekolahList } = useSekolahList({ enabled: isSuperAdmin });
   const { mutate: generate, isPending: generating } = useGenerateSertifikat();
   const { mutate: deleteSertifikat, isPending: isDeleting } = useDeleteSertifikat();
+
+  // Signature key state
+  const signatureSekolahId = effectiveSekolahId ?? null;
+  const { data: signatureKeyStatus, isLoading: isLoadingKeyStatus } = useSignatureKeyStatus(signatureSekolahId);
+  const { mutate: generateSignatureKey, isPending: isGeneratingKey } = useGenerateSignatureKey();
+  const [generatingKeyRole, setGeneratingKeyRole] = useState<"kepsek" | "penguji_eksternal" | null>(null);
 
   const handleDelete = () => {
     if (!deleteTarget) return;
@@ -77,14 +87,14 @@ export default function SertifikatPage() {
       <div className="mb-6">
         <h1 className="text-xl font-bold text-gray-900 mb-4">Sertifikat</h1>
         <div className="flex border-b border-border">
-          {(["sertifikat", "generate"] as const).map(t => (
+          {(["sertifikat", "generate", "tanda-tangan"] as const).map(t => (
             <button
               key={t}
               type="button"
               onClick={() => setTab(t)}
               className={`px-5 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"}`}
             >
-              {t === "sertifikat" ? "Daftar Sertifikat" : "Generate Sertifikat"}
+              {t === "sertifikat" ? "Daftar Sertifikat" : t === "generate" ? "Generate Sertifikat" : "Tanda Tangan Digital"}
             </button>
           ))}
         </div>
@@ -238,6 +248,77 @@ export default function SertifikatPage() {
               </tbody>
             )}
           </table>
+        </div>
+      )}
+
+      {tab === "tanda-tangan" && (
+        <div className="space-y-4">
+          {isSuperAdmin && !signatureSekolahId && <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">Pilih sekolah terlebih dahulu untuk mengelola kunci tanda tangan digital.</p>}
+          {signatureSekolahId && (
+            <>
+              <p className="text-sm text-muted-foreground">
+                Kunci RSA-SHA256 digunakan untuk menandatangani sertifikat secara digital. Generate kunci untuk masing-masing penandatangan, lalu regenerasi sertifikat agar tanda tangan muncul di PDF.
+              </p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {(["kepsek", "penguji_eksternal"] as const).map(role => {
+                  const keyInfo = signatureKeyStatus?.keys?.[role];
+                  const hasKey = keyInfo?.has_key ?? false;
+                  const label = role === "kepsek" ? "Kepala Sekolah" : "Penguji Eksternal";
+                  return (
+                    <div key={role} className="rounded-xl border bg-white shadow-sm p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex size-8 items-center justify-center rounded-md bg-primary/10">
+                          <KeyRound className="size-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold">{label}</p>
+                          <p className="text-xs text-muted-foreground">Tanda Tangan Digital</p>
+                        </div>
+                      </div>
+                      {isLoadingKeyStatus ? (
+                        <p className="text-xs text-muted-foreground">Memeriksa status...</p>
+                      ) : (
+                        <div className="flex items-center gap-2 rounded-md border px-3 py-2">
+                          <span className={`size-2 rounded-full shrink-0 ${hasKey ? "bg-green-500" : "bg-red-400"}`} />
+                          <span className="text-sm flex-1">{hasKey ? "Kunci aktif" : "Belum ada kunci"}</span>
+                        </div>
+                      )}
+                      <Button
+                        size="sm"
+                        variant={hasKey ? "outline" : "default"}
+                        className="w-full"
+                        disabled={isGeneratingKey && generatingKeyRole === role}
+                        onClick={() => {
+                          if (!signatureSekolahId) return;
+                          setGeneratingKeyRole(role);
+                          generateSignatureKey(
+                            { id: signatureSekolahId, role, force: hasKey },
+                            {
+                              onSuccess: () => toast.success(`Kunci ${label} berhasil di-generate`),
+                              onError: () => toast.error(`Gagal generate kunci ${label}`),
+                              onSettled: () => setGeneratingKeyRole(null),
+                            },
+                          );
+                        }}
+                      >
+                        {isGeneratingKey && generatingKeyRole === role ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Loader2 className="size-3.5 animate-spin" />
+                            Generating...
+                          </span>
+                        ) : hasKey ? (
+                          "Generate Ulang"
+                        ) : (
+                          "Generate Kunci"
+                        )}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground">Peringatan: generate ulang kunci akan membuat tanda tangan sertifikat lama tidak bisa diverifikasi.</p>
+            </>
+          )}
         </div>
       )}
     </div>

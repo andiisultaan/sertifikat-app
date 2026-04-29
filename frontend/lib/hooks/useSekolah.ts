@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CreateSekolahPayload, sekolahService, Sekolah } from "@/services/api/sekolahService";
+import { CreateSekolahPayload, sekolahService, UpdateSekolahPayload } from "@/services/api/sekolahService";
 
 const KEYS = {
   list: ["sekolah"] as const,
@@ -35,7 +35,7 @@ export function useCreateSekolah() {
 export function useUpdateSekolah(id: number) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Partial<Sekolah>) => sekolahService.update(id, payload),
+    mutationFn: (payload: UpdateSekolahPayload) => sekolahService.update(id, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: KEYS.list });
       qc.invalidateQueries({ queryKey: KEYS.detail(id) });
@@ -48,5 +48,23 @@ export function useDeleteSekolah() {
   return useMutation({
     mutationFn: (id: number) => sekolahService.remove(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.list }),
+  });
+}
+
+export function useSignatureKeyStatus(id: number | null) {
+  return useQuery({
+    queryKey: ["sekolah", id, "signature-key"] as const,
+    queryFn: () => sekolahService.signatureKeyStatus(id as number),
+    enabled: !!id,
+  });
+}
+
+export function useGenerateSignatureKey() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, role, force }: { id: number; role: "kepsek" | "penguji_eksternal"; force?: boolean }) => sekolahService.generateSignatureKey(id, role, force),
+    onSuccess: (_data, { id }) => {
+      qc.invalidateQueries({ queryKey: ["sekolah", id, "signature-key"] });
+    },
   });
 }

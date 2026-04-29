@@ -14,9 +14,15 @@ class UkkController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $sekolahId = $this->getSekolahId($request);
-        if (! $sekolahId && $request->user()?->isSuperAdmin()) {
+        $user = $request->user();
+
+        if ($user?->isAdmin()) {
+            // Admin sekolah hanya bisa melihat UKK milik sekolahnya
+            $sekolahId = $user->sekolah_id;
+        } elseif ($user?->isSuperAdmin()) {
             $sekolahId = $request->integer('sekolah_id') ?: null;
+        } else {
+            $sekolahId = $this->getSekolahId($request);
         }
 
         $ukk = $this->repo->paginate(
@@ -42,7 +48,10 @@ class UkkController extends Controller
 
     public function show(Request $request, int $id): JsonResponse
     {
-        return response()->json($this->repo->findById($id, $this->getSekolahId($request)));
+        $user = $request->user();
+        $sekolahId = $user?->isAdmin() ? $user->sekolah_id : $this->getSekolahId($request);
+
+        return response()->json($this->repo->findById($id, $sekolahId));
     }
 
     public function update(UpdateUkkRequest $request, int $id): JsonResponse

@@ -6,6 +6,7 @@ use App\Http\Controllers\NilaiController;
 use App\Http\Controllers\PublicNilaiController;
 use App\Http\Controllers\SekolahController;
 use App\Http\Controllers\SertifikatController;
+use App\Http\Controllers\SignatureKeyController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\UkkController;
 use App\Http\Controllers\UserController;
@@ -33,7 +34,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('sekolah/{sekolah}', [SekolahController::class, 'show']);
         Route::put('sekolah/{sekolah}', [SekolahController::class, 'update']);
         Route::patch('sekolah/{sekolah}', [SekolahController::class, 'update']);
+        Route::post('sekolah/{sekolah}', [SekolahController::class, 'update']); // method-spoofing for multipart uploads
 
+        // Digital signature key management (super_admin & admin — scoped to their own sekolah)
+        Route::get('sekolah/{sekolah}/signature-key', [SignatureKeyController::class, 'status']);
+        Route::post('sekolah/{sekolah}/signature-key/generate', [SignatureKeyController::class, 'generate']);
         Route::apiResource('siswa', SiswaController::class)->except(['index', 'show']);
         Route::apiResource('ukk', UkkController::class)->except(['index', 'show']);
 

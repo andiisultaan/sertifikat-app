@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronRight, ChevronLeft, Plus, Trash2 } from "lucide-react";
 import { ukkSchema, UkkFormValues } from "@/lib/validations/ukkSchema";
@@ -26,17 +26,51 @@ const STEP_FIELDS: Record<number, (keyof UkkFormValues)[]> = {
   2: ["kompetensi"],
 };
 
-const emptyKompetensi = {
-  utama: {
-    perencanaan_persiapan: [] as { kode: string; judul: string }[],
-    implementasi: [] as { kode: string; judul: string }[],
-    pengujian_dokumentasi: [] as { kode: string; judul: string }[],
-  },
-  pendukung: [] as { kode: string; judul: string }[],
-};
+type KompetensiGroupValue = { sub_judul: string; items: { kode: string; judul: string }[] };
+
+const emptyGroup = (): KompetensiGroupValue => ({ sub_judul: "", items: [] });
+
+/** Normalises any legacy/stored kompetensi format into the new grouped format */
+function normaliseKompetensi(raw: unknown): KompetensiGroupValue[] {
+  if (!raw) return [];
+
+  // New format: [{sub_judul, items}]
+  if (Array.isArray(raw) && raw.length > 0 && "items" in (raw[0] ?? {})) {
+    return raw as KompetensiGroupValue[];
+  }
+
+  // Old flat format: [{kode, judul}]
+  if (Array.isArray(raw) && raw.length > 0 && "kode" in (raw[0] ?? {})) {
+    return [{ sub_judul: "", items: raw as { kode: string; judul: string }[] }];
+  }
+
+  // Old object format: {utama: {perencanaan_persiapan, implementasi, pengujian_dokumentasi}, pendukung}
+  if (typeof raw === "object" && !Array.isArray(raw)) {
+    const obj = raw as Record<string, unknown>;
+    const groups: KompetensiGroupValue[] = [];
+    const utama = obj["utama"] as Record<string, { kode: string; judul: string }[]> | undefined;
+    if (utama) {
+      const subKeys: { key: string; label: string }[] = [
+        { key: "perencanaan_persiapan", label: "Perencanaan dan Persiapan" },
+        { key: "implementasi", label: "Implementasi" },
+        { key: "pengujian_dokumentasi", label: "Pengujian & Dokumentasi" },
+      ];
+      for (const { key, label } of subKeys) {
+        const items = (utama[key] ?? []) as { kode: string; judul: string }[];
+        if (items.length > 0) groups.push({ sub_judul: label, items });
+      }
+    }
+    const pendukung = obj["pendukung"] as { kode: string; judul: string }[] | undefined;
+    if (pendukung && pendukung.length > 0) {
+      groups.push({ sub_judul: "Kompetensi Pendukung", items: pendukung });
+    }
+    return groups;
+  }
+
+  return [];
+}
 
 function buildResetValues(dv: Partial<Ukk>) {
-  const k = dv.kompetensi as UkkFormValues["kompetensi"] | undefined;
   return {
     nama: dv.nama ?? "",
     judul_pengujian: dv.judul_pengujian ?? "",
@@ -45,7 +79,7 @@ function buildResetValues(dv: Partial<Ukk>) {
     tanggal_mulai: dv.tanggal_mulai?.toString().slice(0, 10) ?? "",
     tanggal_selesai: dv.tanggal_selesai?.toString().slice(0, 10) ?? "",
     status: dv.status,
-    kompetensi: k ?? emptyKompetensi,
+    kompetensi: normaliseKompetensi(dv.kompetensi),
     nama_sekolah: dv.nama_sekolah ?? "",
     alamat_sekolah: dv.alamat_sekolah ?? "",
     nama_kepsek: dv.nama_kepsek ?? "",
@@ -56,29 +90,30 @@ function buildResetValues(dv: Partial<Ukk>) {
   };
 }
 
-// ── Reusable sub-section rows ──────────────────────────────────────────────
-function KompetensiRows({
-  fields,
+// ── Nested items inside each group ────────────────────────────────────────
+function GroupItemsRows({
+  nestIndex,
+  control,
   register,
-  remove,
-  append,
-  baseName,
 }: {
+  nestIndex: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  fields: any[];
+  control: Control<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   register: any;
-  remove: (i: number) => void;
-  append: () => void;
-  baseName: string;
 }) {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: `kompetensi.${nestIndex}.items`,
+  });
+
   return (
     <div className="space-y-2 pl-3 border-l-2 border-slate-200">
       {fields.map((field, index) => (
         <div key={field.id} className="flex gap-2 items-center">
           <span className="text-xs text-slate-400 w-5 shrink-0 text-right">{index + 1}.</span>
-          <Input {...register(`${baseName}.${index}.kode`)} placeholder="J.611000.001.01" className="w-36 shrink-0 text-xs h-8" />
-          <Input {...register(`${baseName}.${index}.judul`)} placeholder="Judul kompetensi..." className="flex-1 text-xs h-8" />
+          <Input {...register(`kompetensi.${nestIndex}.items.${index}.kode`)} placeholder="J.611000.001.01" className="w-36 shrink-0 text-xs h-8" />
+          <Input {...register(`kompetensi.${nestIndex}.items.${index}.judul`)} placeholder="Judul kompetensi..." className="flex-1 text-xs h-8" />
           <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="size-8 text-red-400 hover:text-red-600 shrink-0">
             <Trash2 className="size-3.5" />
           </Button>
@@ -91,31 +126,26 @@ function KompetensiRows({
         onClick={e => {
           e.preventDefault();
           e.stopPropagation();
-          append();
+          append({ kode: "", judul: "" });
         }}
         className="h-7 text-xs gap-1 mt-1"
       >
-        <Plus className="size-3" /> Tambah
+        <Plus className="size-3" /> Tambah Item
       </Button>
     </div>
   );
 }
 
-// Remove rows where judul is empty (partially filled / accidentally added)
+// Remove groups with no items (and items with empty judul)
 function cleanKompetensi(values: UkkFormValues): UkkFormValues {
   if (!values.kompetensi) return values;
-  const keep = (arr: { kode: string; judul: string }[]) => arr.filter(item => item.judul.trim() !== "");
-  return {
-    ...values,
-    kompetensi: {
-      utama: {
-        perencanaan_persiapan: keep(values.kompetensi.utama.perencanaan_persiapan),
-        implementasi: keep(values.kompetensi.utama.implementasi),
-        pengujian_dokumentasi: keep(values.kompetensi.utama.pengujian_dokumentasi),
-      },
-      pendukung: keep(values.kompetensi.pendukung),
-    },
-  };
+  const cleaned = (values.kompetensi as KompetensiGroupValue[])
+    .map(group => ({
+      ...group,
+      items: group.items.filter(item => item.judul.trim() !== ""),
+    }))
+    .filter(group => group.items.length > 0);
+  return { ...values, kompetensi: cleaned };
 }
 
 export function UkkForm({ defaultValues, onSubmit, isPending, mode = "create" }: Props) {
@@ -130,14 +160,11 @@ export function UkkForm({ defaultValues, onSubmit, isPending, mode = "create" }:
     formState: { errors },
   } = useForm<UkkFormValues>({
     resolver: zodResolver(ukkSchema),
-    defaultValues: { kompetensi: emptyKompetensi },
+    defaultValues: { kompetensi: [] },
   });
 
   // ── Field arrays ──────────────────────────────────────────────────────────
-  const perencanaanFields = useFieldArray({ control, name: "kompetensi.utama.perencanaan_persiapan" });
-  const implementasiFields = useFieldArray({ control, name: "kompetensi.utama.implementasi" });
-  const pengujianDokFields = useFieldArray({ control, name: "kompetensi.utama.pengujian_dokumentasi" });
-  const pendukungFields = useFieldArray({ control, name: "kompetensi.pendukung" });
+  const groupFields = useFieldArray({ control, name: "kompetensi" });
 
   const prevResetKeyRef = useRef<string>("");
   useEffect(() => {
@@ -152,9 +179,6 @@ export function UkkForm({ defaultValues, onSubmit, isPending, mode = "create" }:
     prevResetKeyRef.current = resetKey;
 
     reset(buildResetValues(defaultValues));
-    if (mode === "edit") {
-      setActive(0);
-    }
   }, [defaultValues, mode, reset]);
 
   const handleNext = async () => {
@@ -252,48 +276,43 @@ export function UkkForm({ defaultValues, onSubmit, isPending, mode = "create" }:
 
   // ── Section: Daftar Kompetensi ─────────────────────────────────────────────
   const sectionKompetensi = (
-    <div className="space-y-5">
-      {/* KRITERIA ELEMEN KOMPETENSI UTAMA */}
-      <div className="rounded-lg border border-slate-200 overflow-hidden">
-        <div className="bg-slate-800 text-white px-4 py-2.5">
-          <p className="text-sm font-semibold">Kriteria Elemen Kompetensi Utama</p>
-          <p className="text-xs text-slate-300 italic font-normal">Main Competency Elements Criteria</p>
-        </div>
-        <div className="divide-y divide-slate-100">
-          <div className="p-4 space-y-2">
-            <p className="text-sm font-semibold text-slate-700">
-              Perencanaan dan Persiapan
-              <span className="ml-1 text-xs font-normal text-slate-400 italic">/ Planning &amp; Preparation</span>
-            </p>
-            <KompetensiRows fields={perencanaanFields.fields} register={register} remove={perencanaanFields.remove} append={() => perencanaanFields.append({ kode: "", judul: "" })} baseName="kompetensi.utama.perencanaan_persiapan" />
+    <div className="space-y-4">
+      {groupFields.fields.map((group, gi) => (
+        <div key={group.id} className="rounded-lg border border-slate-200 overflow-hidden">
+          {/* Group header with optional sub_judul input */}
+          <div className="bg-slate-800 text-white px-4 py-2.5 flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <Input
+                {...register(`kompetensi.${gi}.sub_judul`)}
+                placeholder="Sub Judul (opsional, mis. Perencanaan dan Persiapan)"
+                className="bg-white/10 border-white/20 text-white placeholder:text-slate-400 text-sm h-7 focus-visible:ring-white/30"
+              />
+            </div>
+            <Button type="button" variant="ghost" size="icon" onClick={() => groupFields.remove(gi)} className="size-7 text-red-300 hover:text-red-100 hover:bg-white/10 shrink-0">
+              <Trash2 className="size-3.5" />
+            </Button>
           </div>
-          <div className="p-4 space-y-2">
-            <p className="text-sm font-semibold text-slate-700">
-              Implementasi
-              <span className="ml-1 text-xs font-normal text-slate-400 italic">/ Implementation</span>
-            </p>
-            <KompetensiRows fields={implementasiFields.fields} register={register} remove={implementasiFields.remove} append={() => implementasiFields.append({ kode: "", judul: "" })} baseName="kompetensi.utama.implementasi" />
-          </div>
-          <div className="p-4 space-y-2">
-            <p className="text-sm font-semibold text-slate-700">
-              Pengujian &amp; Dokumentasi
-              <span className="ml-1 text-xs font-normal text-slate-400 italic">/ Testing &amp; Documentation</span>
-            </p>
-            <KompetensiRows fields={pengujianDokFields.fields} register={register} remove={pengujianDokFields.remove} append={() => pengujianDokFields.append({ kode: "", judul: "" })} baseName="kompetensi.utama.pengujian_dokumentasi" />
+          <div className="p-4">
+            <GroupItemsRows nestIndex={gi} control={control} register={register} />
           </div>
         </div>
-      </div>
+      ))}
 
-      {/* KRITERIA ELEMEN KOMPETENSI PENDUKUNG */}
-      <div className="rounded-lg border border-slate-200 overflow-hidden">
-        <div className="bg-slate-600 text-white px-4 py-2.5">
-          <p className="text-sm font-semibold">Kriteria Elemen Kompetensi Pendukung</p>
-          <p className="text-xs text-slate-300 italic font-normal">Supporting Competency Elements Criteria</p>
-        </div>
-        <div className="p-4">
-          <KompetensiRows fields={pendukungFields.fields} register={register} remove={pendukungFields.remove} append={() => pendukungFields.append({ kode: "", judul: "" })} baseName="kompetensi.pendukung" />
-        </div>
-      </div>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={e => {
+          e.preventDefault();
+          e.stopPropagation();
+          groupFields.append(emptyGroup());
+        }}
+        className="gap-1.5 text-xs"
+      >
+        <Plus className="size-3.5" /> Tambah Grup Kompetensi
+      </Button>
+
+      {groupFields.fields.length === 0 && <p className="text-xs text-slate-400 italic">Belum ada kompetensi. Klik &ldquo;Tambah Grup Kompetensi&rdquo; untuk menambahkan.</p>}
     </div>
   );
 

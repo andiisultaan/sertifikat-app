@@ -5,16 +5,12 @@ const kompetensiItem = z.object({
   judul: z.string().default(""),
 });
 
-const kompetensiUtama = z.object({
-  perencanaan_persiapan: z.array(kompetensiItem).default([]),
-  implementasi: z.array(kompetensiItem).default([]),
-  pengujian_dokumentasi: z.array(kompetensiItem).default([]),
+const kompetensiGroup = z.object({
+  sub_judul: z.string().default(""),
+  items: z.array(kompetensiItem).default([]),
 });
 
-const kompetensiSchema = z.object({
-  utama: kompetensiUtama,
-  pendukung: z.array(kompetensiItem).default([]),
-});
+const kompetensiSchema = z.array(kompetensiGroup).default([]);
 
 export const ukkSchema = z
   .object({

@@ -1,4 +1,11 @@
-import { CheckCircle2, XCircle, ShieldCheck, Calendar, User, Hash, BookOpen, Award, Clock } from "lucide-react";
+import { CheckCircle2, XCircle, ShieldCheck, ShieldAlert, ShieldX, Calendar, User, Hash, BookOpen, Award, Clock } from "lucide-react";
+
+interface DigitalSignatureInfo {
+  status: "valid" | "invalid" | "error" | "not_signed";
+  is_signed: boolean;
+  algorithm: string | null;
+  fingerprint: string | null;
+}
 
 interface VerifyResult {
   valid: boolean;
@@ -12,6 +19,11 @@ interface VerifyResult {
   nilai_akhir?: number;
   tanggal_terbit?: string;
   masa_berlaku?: string;
+  signer_role?: "kepsek" | "penguji_eksternal";
+  signer_jabatan?: string;
+  signer_nama?: string;
+  signer_nip?: string | null;
+  digital_signature?: DigitalSignatureInfo;
 }
 
 async function verifySertifikat(token: string): Promise<VerifyResult> {
@@ -73,6 +85,18 @@ export default async function VerifyPage({ params }: { params: Promise<{ token: 
                 <InfoRow icon={Calendar} label="Tanggal Terbit" value={data.tanggal_terbit} />
                 <InfoRow icon={Clock} label="Berlaku Hingga" value={data.masa_berlaku} />
               </div>
+
+              {/* Signer Block */}
+              {data.signer_jabatan && (
+                <div className="border-t border-slate-100 pt-4 space-y-4">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Penanda Tangan</p>
+                  <InfoRow icon={User} label={data.signer_jabatan} value={data.signer_nama} />
+                  {data.signer_nip && <InfoRow icon={Hash} label="NIP" value={data.signer_nip} mono />}
+                </div>
+              )}
+
+              {/* Digital Signature Block */}
+              <DigitalSignatureBlock sig={data.digital_signature} />
             </div>
           )}
 
@@ -95,6 +119,52 @@ function InfoRow({ icon: Icon, label, value, mono = false, highlight = false }: 
       <div className="flex-1 min-w-0">
         <p className="text-xs text-slate-400">{label}</p>
         <p className={`text-sm font-medium truncate ${mono ? "font-mono text-slate-700" : "text-slate-800"} ${highlight ? "text-emerald-600 font-bold" : ""}`}>{value ?? "-"}</p>
+      </div>
+    </div>
+  );
+}
+
+function DigitalSignatureBlock({ sig }: { sig?: DigitalSignatureInfo }) {
+  if (!sig) return null;
+
+  const isValid = sig.status === "valid";
+  const isSigned = sig.is_signed;
+  const isInvalid = sig.status === "invalid";
+
+  const bgClass = isValid ? "bg-emerald-50 border-emerald-200" : isInvalid ? "bg-red-50 border-red-200" : "bg-slate-50 border-slate-200";
+  const textClass = isValid ? "text-emerald-700" : isInvalid ? "text-red-700" : "text-slate-500";
+  const labelClass = isValid ? "text-emerald-800" : isInvalid ? "text-red-800" : "text-slate-600";
+
+  const statusLabel = isValid
+    ? "Tanda Tangan Digital Valid"
+    : isInvalid
+      ? "Tanda Tangan Digital Tidak Valid (Dokumen Mungkin Diubah)"
+      : sig.status === "error"
+        ? "Gagal Memverifikasi Tanda Tangan (Masalah Key)"
+        : "Dokumen Belum Ditandatangani Digital";
+
+  const Icon = isValid ? ShieldCheck : isInvalid ? ShieldX : ShieldAlert;
+
+  // Format fingerprint: XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
+  const fp = sig.fingerprint ? sig.fingerprint.match(/.{1,8}/g)?.join(" ") : null;
+
+  return (
+    <div className="border-t border-slate-100 pt-4">
+      <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Tanda Tangan Digital</p>
+      <div className={`rounded-xl border p-4 ${bgClass}`}>
+        <div className="flex items-start gap-3">
+          <Icon className={`size-5 mt-0.5 shrink-0 ${textClass}`} />
+          <div className="flex-1 min-w-0 space-y-1.5">
+            <p className={`text-sm font-semibold ${labelClass}`}>{statusLabel}</p>
+            {fp && (
+              <div className="mt-1">
+                <p className="text-xs text-slate-400 mb-0.5">Fingerprint</p>
+                <p className="font-mono text-xs text-slate-600 tracking-wide break-all">{fp}</p>
+              </div>
+            )}
+            {!isSigned && <p className="text-xs text-slate-400 italic">Sertifikat ini belum memiliki tanda tangan digital. Hubungi administrator sekolah.</p>}
+          </div>
+        </div>
       </div>
     </div>
   );

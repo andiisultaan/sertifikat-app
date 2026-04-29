@@ -13,12 +13,18 @@ class Sekolah extends Model
 
     protected $table = 'sekolah';
 
+    protected $appends = ['logo_url', 'background_template_url'];
+
     protected $fillable = [
         'nama',
         'alamat',
         'nama_kepsek',
         'nip_kepsek',
         'nama_universitas',
+        'logo_path',
+        'background_template_path',
+        'public_key',
+        'public_key_penguji_eksternal',
     ];
 
     public function admin(): HasOne
@@ -39,5 +45,23 @@ class Sekolah extends Model
     public function ukk(): HasMany
     {
         return $this->hasMany(Ukk::class);
+    }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (! $this->logo_path) {
+            return null;
+        }
+
+        return asset('storage/' . ltrim($this->logo_path, '/'));
+    }
+
+    public function getBackgroundTemplateUrlAttribute(): ?string
+    {
+        if (! $this->background_template_path) {
+            return null;
+        }
+
+        return asset('storage/' . ltrim($this->background_template_path, '/'));
     }
 }

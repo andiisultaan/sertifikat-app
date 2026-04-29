@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Sekolah;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class SekolahController extends Controller
 {
+    private const AUTO_ROLES = ['admin', 'penguji_internal', 'penguji_external'];
+
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -38,25 +42,32 @@ class SekolahController extends Controller
             $slug = Str::slug($sekolah->nama);
             $slug = $slug !== '' ? $slug : 'sekolah-' . $sekolah->id;
 
-            $email = $this->generateUniqueAdminEmail($slug);
-            $password = Str::random(12);
+            $accounts = [];
+            foreach (self::AUTO_ROLES as $role) {
+                $email = $this->generateUniqueEmail($role, $slug);
+                $password = Str::random(12);
 
-            $admin = User::create([
-                'name'       => 'Admin ' . $sekolah->nama,
-                'email'      => $email,
-                'password'   => Hash::make($password),
-                'role'       => 'admin',
-                'sekolah_id' => $sekolah->id,
-            ]);
+                $user = User::create([
+                    'name'       => $this->defaultNameForRole($role, $sekolah->nama),
+                    'email'      => $email,
+                    'password'   => Hash::make($password),
+                    'role'       => $role,
+                    'sekolah_id' => $sekolah->id,
+                ]);
+
+                $accounts[$role] = [
+                    'id'       => $user->id,
+                    'name'     => $user->name,
+                    'email'    => $user->email,
+                    'password' => $password,
+                ];
+            }
 
             $result = [
                 'sekolah' => $sekolah,
-                'admin'   => [
-                    'id'       => $admin->id,
-                    'name'     => $admin->name,
-                    'email'    => $admin->email,
-                    'password' => $password,
-                ],
+                'accounts' => $accounts,
+                // Keep this key for backward compatibility with existing frontend flow.
+                'admin' => $accounts['admin'],
             ];
         });
 
@@ -83,12 +94,40 @@ class SekolahController extends Controller
         }
 
         $data = $request->validate([
-            'nama'             => ['sometimes', 'string', 'max:255'],
-            'alamat'           => ['sometimes', 'nullable', 'string'],
-            'nama_kepsek'      => ['sometimes', 'nullable', 'string', 'max:255'],
-            'nip_kepsek'       => ['sometimes', 'nullable', 'string', 'max:50'],
-            'nama_universitas' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'nama'                => ['sometimes', 'string', 'max:255'],
+            'alamat'              => ['sometimes', 'nullable', 'string'],
+            'nama_kepsek'         => ['sometimes', 'nullable', 'string', 'max:255'],
+            'nip_kepsek'          => ['sometimes', 'nullable', 'string', 'max:50'],
+            'nama_universitas'    => ['sometimes', 'nullable', 'string', 'max:255'],
+            'logo'                => ['sometimes', 'nullable', 'file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+            'background_template' => ['sometimes', 'nullable', 'file', 'image', 'mimes:jpeg,jpg,png,webp', 'max:8192'],
+            'remove_logo'         => ['sometimes', 'boolean'],
+            'remove_background'   => ['sometimes', 'boolean'],
         ]);
+
+        if ($request->boolean('remove_logo') && $sekolah->logo_path) {
+            Storage::disk('public')->delete($sekolah->logo_path);
+            $data['logo_path'] = null;
+        } elseif ($request->hasFile('logo')) {
+            $data['logo_path'] = $this->storeImage(
+                file: $request->file('logo'),
+                targetDir: 'sekolah/logo',
+                schoolName: $sekolah->nama,
+                oldPath: $sekolah->logo_path
+            );
+        }
+
+        if ($request->boolean('remove_background') && $sekolah->background_template_path) {
+            Storage::disk('public')->delete($sekolah->background_template_path);
+            $data['background_template_path'] = null;
+        } elseif ($request->hasFile('background_template')) {
+            $data['background_template_path'] = $this->storeImage(
+                file: $request->file('background_template'),
+                targetDir: 'sekolah/background',
+                schoolName: $sekolah->nama,
+                oldPath: $sekolah->background_template_path
+            );
+        }
 
         $sekolah->update($data);
 
@@ -102,9 +141,9 @@ class SekolahController extends Controller
         return response()->json(['message' => 'Sekolah berhasil dihapus.']);
     }
 
-    private function generateUniqueAdminEmail(string $slug): string
+    private function generateUniqueEmail(string $role, string $slug): string
     {
-        $base = "admin.{$slug}@sertifikat.app";
+        $base = "{$role}.{$slug}@sertifikat.app";
 
         if (! User::where('email', $base)->exists()) {
             return $base;
@@ -112,10 +151,35 @@ class SekolahController extends Controller
 
         $counter = 2;
         do {
-            $email = "admin.{$slug}.{$counter}@sertifikat.app";
+            $email = "{$role}.{$slug}.{$counter}@sertifikat.app";
             $counter++;
         } while (User::where('email', $email)->exists());
 
         return $email;
+    }
+
+    private function defaultNameForRole(string $role, string $schoolName): string
+    {
+        return match ($role) {
+            'admin' => 'Admin ' . $schoolName,
+            'penguji_internal' => 'Penguji Internal ' . $schoolName,
+            'penguji_external' => 'Penguji External ' . $schoolName,
+            default => ucfirst(str_replace('_', ' ', $role)) . ' ' . $schoolName,
+        };
+    }
+
+    private function storeImage(UploadedFile $file, string $targetDir, string $schoolName, ?string $oldPath = null): string
+    {
+        $ext = strtolower($file->getClientOriginalExtension() ?: ($file->guessExtension() ?: 'jpg'));
+        $fileName = Str::slug($schoolName) . '-' . Str::lower(Str::random(12)) . '.' . $ext;
+        $relativePath = trim($targetDir, '/') . '/' . $fileName;
+
+        Storage::disk('public')->put($relativePath, file_get_contents($file->getRealPath()));
+
+        if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        return $relativePath;
     }
 }

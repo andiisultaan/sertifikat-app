@@ -6,15 +6,9 @@ export interface KompetensiItem {
   judul: string;
 }
 
-export interface KompetensiUtama {
-  perencanaan_persiapan: KompetensiItem[];
-  implementasi: KompetensiItem[];
-  pengujian_dokumentasi: KompetensiItem[];
-}
-
-export interface KompetensiData {
-  utama: KompetensiUtama;
-  pendukung: KompetensiItem[];
+export interface KompetensiGroup {
+  sub_judul: string;
+  items: KompetensiItem[];
 }
 
 export interface Ukk {
@@ -26,7 +20,8 @@ export interface Ukk {
   tanggal_mulai: string;
   tanggal_selesai: string;
   status: "aktif" | "selesai";
-  kompetensi?: KompetensiData;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  kompetensi?: any;
   nama_sekolah?: string;
   alamat_sekolah?: string;
   nama_kepsek?: string;
@@ -46,7 +41,7 @@ export interface UkkPayload {
   tanggal_mulai: string;
   tanggal_selesai: string;
   status?: "aktif" | "selesai";
-  kompetensi?: KompetensiData;
+  kompetensi?: KompetensiGroup[];
   nama_sekolah?: string;
   alamat_sekolah?: string;
   nama_kepsek?: string;

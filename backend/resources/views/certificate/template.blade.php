@@ -48,6 +48,15 @@
       height: 100%;
       z-index: -1;
     }
+    .bg-custom {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+    }
 
     /* ── DOUBLE BORDER FRAME ── */
     .frame-outer {
@@ -69,8 +78,7 @@
       top: 15mm; left: 15mm; right: 15mm; bottom: 15mm;
       z-index: 2;
       text-align: center;
-      /* Cadangan ruang untuk area tanda tangan di bawah */
-      padding-bottom: 82mm;
+      padding-bottom: 68mm;
     }
 
     /* ── HEADER BAR ── */
@@ -88,7 +96,6 @@
       width: 25mm;
       height: 25mm;
       border: 1pt solid #1e3a5f;
-      border-radius: 50%;
       margin: 0 auto 3mm auto;
       font-size: 7.5pt;
       font-weight: 700;
@@ -286,6 +293,93 @@
       vertical-align: top;
       text-align: center;
     }
+    /* QR dalam sel signature */
+    .sig-qr-wrap {
+      margin: 2mm auto 2mm auto;
+      display: inline-block;
+    }
+    .sig-qr-img {
+      width: 24mm;
+      height: 24mm;
+      display: block;
+      border: 1pt solid #d4af37;
+      padding: 1mm;
+      background: #fff;
+    }
+    .sig-qr-label {
+      font-size: 6pt;
+      color: #718096;
+      margin-top: 0.5mm;
+      line-height: 1.3;
+    }
+    .sig-qr-algo {
+      font-size: 5.5pt;
+      color: #2d3748;
+      font-family: 'Courier New', monospace;
+      display: block;
+      margin-top: 0.3mm;
+    }
+    .sig-unsigned-label {
+      font-size: 7pt;
+      color: #a0aec0;
+      font-style: italic;
+      margin: 3mm auto;
+    }
+    /* ── ELECTRONIC SIGNATURE BOX (referensi: QR kiri + teks kanan) ── */
+    .esig-box {
+      display: table;
+      width: 88%;
+      margin: 1.5mm auto 3mm auto;
+      border: 0.8pt solid #2d3748;
+      border-radius: 1.5mm;
+      padding: 1.5mm 2mm;
+      background: #fff;
+      font-size: 7pt;
+    }
+    .esig-qr-cell {
+      display: table-cell;
+      width: 18mm;
+      vertical-align: middle;
+      padding-right: 2mm;
+    }
+    .esig-qr-cell img {
+      width: 18mm;
+      height: 18mm;
+      display: block;
+      background: #fff;
+    }
+    .esig-text-cell {
+      display: table-cell;
+      vertical-align: middle;
+      text-align: left;
+      line-height: 1.5;
+    }
+    .esig-label {
+      font-size: 6.5pt;
+      color: #4a5568;
+      display: block;
+    }
+    .esig-jabatan {
+      font-size: 7pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      display: block;
+      text-transform: uppercase;
+    }
+    .esig-nama {
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      display: block;
+      text-decoration: underline;
+    }
+    .esig-algo {
+      font-size: 5.5pt;
+      color: #718096;
+      font-family: 'Courier New', monospace;
+      display: block;
+      margin-top: 0.5mm;
+    }
     .sig-role {
       font-size: 10pt;
       color: #1e3a5f;
@@ -451,46 +545,126 @@
       margin-top: 0.6mm;
       font-size: 8.5pt;
     }
+
+    /* ── CENTERED QR CODE BLOCK (kolom tengah tabel) ── */
+    .qr-center-block {
+      text-align: center;
+    }
+    .qr-center-img {
+      width: 22mm;
+      height: 22mm;
+      display: inline-block;
+      border: 1pt solid #d4af37;
+      padding: 1mm;
+      background: #fff;
+    }
+    .qr-center-label {
+      margin-top: 1mm;
+      font-size: 6.5pt;
+      color: #718096;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .qr-center-label strong {
+      display: block;
+      font-size: 7pt;
+      color: #1e3a5f;
+      font-weight: 700;
+    }
+
+    /* ── DIGITAL SIGNATURE STAMP (in sig cells) ── */
+    .dig-sig-stamp {
+      display: block;
+      margin: 2mm auto 2mm auto;
+      border: 1pt dashed #1e3a5f;
+      border-radius: 2mm;
+      padding: 2mm 3mm;
+      background: #f0f4f8;
+      text-align: left;
+      width: 80%;
+    }
+    .dig-sig-stamp-header {
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #1e3a5f;
+      display: block;
+      margin-bottom: 1mm;
+      background: #1e3a5f;
+      color: #fff;
+      padding: 0.5mm 2mm;
+      border-radius: 1mm;
+      letter-spacing: 0.2px;
+    }
+    .dig-sig-stamp-row {
+      font-size: 6.5pt;
+      color: #4a5568;
+      display: block;
+      line-height: 1.5;
+    }
+    .dig-sig-stamp-hash {
+      font-size: 6pt;
+      color: #2d3748;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.3px;
+      word-break: break-all;
+      display: block;
+      margin-top: 0.5mm;
+    }
+    .dig-sig-unsigned {
+      font-size: 7pt;
+      color: #a0aec0;
+      font-style: italic;
+      text-align: center;
+      border-color: #cbd5e0;
+      background: #f7fafc;
+    }
   </style>
 </head>
 <body>
+@php $backgroundPath = !empty($background_template_path) ? public_path('storage/' . ltrim($background_template_path, '/')) : null; @endphp
 
 {{-- ============================================================
      HALAMAN 1 — SERTIFIKAT (A4)
 ============================================================ --}}
 <div class="page">
 
-  {{-- Background SVG: border stripes + corner ornaments --}}
-  <div class="bg">
-    <svg width="210mm" height="297mm" viewBox="0 0 794 1123" xmlns="http://www.w3.org/2000/svg">
-     
-      {{-- Top/Bottom gold stripe --}}
-      <rect x="0" y="0"    width="794" height="11" fill="#d4af37"/>
-      <rect x="0" y="1112" width="794" height="11" fill="#d4af37"/>
-      {{-- Left/Right gold stripe --}}
-      <rect x="0"   y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
-      <rect x="783" y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
-      {{-- Corner L-ornaments (top-left) --}}
-      <path d="M0,0 L114,0 L114,11 L11,11 L11,114 L0,114 Z" fill="#d4af37" opacity="0.8"/>
-      {{-- Corner L-ornaments (top-right) --}}
-      <path d="M794,0 L680,0 L680,11 L783,11 L783,114 L794,114 Z" fill="#d4af37" opacity="0.8"/>
-      {{-- Corner L-ornaments (bottom-left) --}}
-      <path d="M0,1123 L114,1123 L114,1112 L11,1112 L11,1009 L0,1009 Z" fill="#d4af37" opacity="0.8"/>
-      {{-- Corner L-ornaments (bottom-right) --}}
-      <path d="M794,1123 L680,1123 L680,1112 L783,1112 L783,1009 L794,1009 Z" fill="#d4af37" opacity="0.8"/>
-    </svg>
-  </div>
+  @if(!empty($backgroundPath) && file_exists($backgroundPath))
+    <img src="{{ $backgroundPath }}" alt="Background Sertifikat" class="bg-custom">
+  @else
+    {{-- Background SVG: border stripes + corner ornaments --}}
+    <div class="bg">
+      <svg width="210mm" height="297mm" viewBox="0 0 794 1123" xmlns="http://www.w3.org/2000/svg">
+       
+        {{-- Top/Bottom gold stripe --}}
+        <rect x="0" y="0"    width="794" height="11" fill="#d4af37"/>
+        <rect x="0" y="1112" width="794" height="11" fill="#d4af37"/>
+        {{-- Left/Right gold stripe --}}
+        <rect x="0"   y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
+        <rect x="783" y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
+        {{-- Corner L-ornaments (top-left) --}}
+        <path d="M0,0 L114,0 L114,11 L11,11 L11,114 L0,114 Z" fill="#d4af37" opacity="0.8"/>
+        {{-- Corner L-ornaments (top-right) --}}
+        <path d="M794,0 L680,0 L680,11 L783,11 L783,114 L794,114 Z" fill="#d4af37" opacity="0.8"/>
+        {{-- Corner L-ornaments (bottom-left) --}}
+        <path d="M0,1123 L114,1123 L114,1112 L11,1112 L11,1009 L0,1009 Z" fill="#d4af37" opacity="0.8"/>
+        {{-- Corner L-ornaments (bottom-right) --}}
+        <path d="M794,1123 L680,1123 L680,1112 L783,1112 L783,1009 L794,1009 Z" fill="#d4af37" opacity="0.8"/>
+      </svg>
+    </div>
+  @endif
 
   {{-- Double frame --}}
   <div class="frame-outer"></div>
   <div class="frame-inner"></div>
+
+  {{-- QR kini dirender di dalam kolom tengah tabel signature --}}
 
   {{-- Main content --}}
   <div class="content">
 
     {{-- Header bar --}}
     <div class="header-center">
-      @php $logoPath = public_path('images/logo-dinas-pendidikan.png'); @endphp
+      @php $logoPath = !empty($logo_path) ? public_path('storage/' . ltrim($logo_path, '/')) : public_path('images/logo-dinas-pendidikan.png'); @endphp
       @if(file_exists($logoPath))
         <img src="{{ $logoPath }}" alt="Logo Dinas" class="header-center-logo">
       @else
@@ -571,22 +745,33 @@
     <table class="sig1">
       <tr>
         {{-- Kepala Sekolah --}}
-        <td>
+        <td style="width:50%">
           <div class="sig-role">
             Atas Nama {{ $nama_sekolah ?? 'Sekolah' }}<br>
             <em>On Behalf of the School</em>
           </div>
-          {{-- QR = Tanda Tangan Digital Kepala Sekolah --}}
-          @if(!empty($qr_base64))
-            <div class="qr-sig-wrap">
-              <img src="data:image/svg+xml;base64,{{ $qr_base64 }}" alt="TTD Digital Kepala Sekolah" class="qr-sig-img">
-              <div class="qr-sig-label">
-                <strong>Tanda Tangan Digital</strong>
-                Digital Signature
+          {{-- QR Tanda Tangan Digital Kepala Sekolah --}}
+          @if(!empty($is_signed_kepsek) && !empty($qr_base64))
+            <div class="esig-box">
+              <div class="esig-qr-cell">
+                <img src="data:image/svg+xml;base64,{{ $qr_base64 }}" alt="QR Tanda Tangan Kepsek">
+              </div>
+              <div class="esig-text-cell">
+                <span class="esig-label">Ditandatangani secara elektronik oleh:</span>
+                <span class="esig-jabatan">Kepala Sekolah</span>
+                <span class="esig-nama">{{ $nama_kepsek ?? '' }}</span>
+                @if(!empty($signature_fingerprint))
+                  <span class="esig-algo">{{ $signature_algorithm ?? 'RSA-SHA256' }} &bull; {{ implode(' ', str_split(substr($signature_fingerprint, 0, 16), 8)) }}</span>
+                @endif
               </div>
             </div>
+          @else
+            <div class="sig-unsigned-label">Belum ditandatangani digital</div>
           @endif
-          <div class="sig-name">{{ $nama_kepsek ?? '____________________________' }}</div>
+          {{-- Nama hanya tampil jika belum ditandatangani kepsek --}}
+          @if(empty($is_signed_kepsek) || empty($qr_base64))
+            <div class="sig-name">{{ $nama_kepsek ?? '____________________________' }}</div>
+          @endif
           <div class="sig-sub">
             Kepala Sekolah<br>
             <em>School Principal</em>
@@ -594,7 +779,7 @@
         </td>
 
         {{-- Penguji Eksternal --}}
-        <td>
+        <td style="width:50%">
           <div class="sig-role">
             @if(!empty($nama_universitas))
               {{ $nama_universitas }}<br>
@@ -603,17 +788,28 @@
               &nbsp;<br><em>&nbsp;</em>
             @endif
           </div>
-          {{-- QR = Tanda Tangan Digital Penguji Eksternal --}}
-          @if(!empty($qr_base64))
-            <div class="qr-sig-wrap">
-              <img src="data:image/svg+xml;base64,{{ $qr_base64 }}" alt="TTD Digital Penguji Eksternal" class="qr-sig-img">
-              <div class="qr-sig-label">
-                <strong>Tanda Tangan Digital</strong>
-                Digital Signature
+          {{-- QR Tanda Tangan Digital Penguji Eksternal --}}
+          @if(!empty($is_signed_penguji) && !empty($qr_base64_penguji))
+            <div class="esig-box">
+              <div class="esig-qr-cell">
+                <img src="data:image/svg+xml;base64,{{ $qr_base64_penguji }}" alt="QR Tanda Tangan Penguji">
+              </div>
+              <div class="esig-text-cell">
+                <span class="esig-label">Ditandatangani secara elektronik oleh:</span>
+                <span class="esig-jabatan">Penguji Eksternal</span>
+                <span class="esig-nama">{{ $nama_penguji_external ?? '' }}</span>
+                @if(!empty($signature_fingerprint_penguji))
+                  <span class="esig-algo">{{ $signature_algorithm ?? 'RSA-SHA256' }} &bull; {{ implode(' ', str_split(substr($signature_fingerprint_penguji, 0, 16), 8)) }}</span>
+                @endif
               </div>
             </div>
+          @else
+            <div class="sig-unsigned-label">Belum ditandatangani digital</div>
           @endif
-          <div class="sig-name">{{ $nama_penguji_external ?? '____________________________' }}</div>
+          {{-- Nama hanya tampil jika belum ditandatangani penguji --}}
+          @if(empty($is_signed_penguji) || empty($qr_base64_penguji))
+            <div class="sig-name">{{ $nama_penguji_external ?? '____________________________' }}</div>
+          @endif
           <div class="sig-sub">
             Penguji Eksternal<br>
             <em>External Assessor</em>
@@ -621,7 +817,7 @@
         </td>
       </tr>
     </table>
-  </div>
+  </div>{{-- /signature-wrapper --}}
 </div>{{-- /page 1 --}}
 
 <div class="page-break"></div>
@@ -631,18 +827,22 @@
 ============================================================ --}}
 <div class="page">
 
-  <div class="bg">
-    <svg width="210mm" height="297mm" viewBox="0 0 794 1123" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" y="0"    width="794" height="11" fill="#d4af37"/>
-      <rect x="0" y="1112" width="794" height="11" fill="#d4af37"/>
-      <rect x="0"   y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
-      <rect x="783" y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
-      <path d="M0,0 L114,0 L114,11 L11,11 L11,114 L0,114 Z"         fill="#d4af37" opacity="0.8"/>
-      <path d="M794,0 L680,0 L680,11 L783,11 L783,114 L794,114 Z"   fill="#d4af37" opacity="0.8"/>
-      <path d="M0,1123 L114,1123 L114,1112 L11,1112 L11,1009 L0,1009 Z"       fill="#d4af37" opacity="0.8"/>
-      <path d="M794,1123 L680,1123 L680,1112 L783,1112 L783,1009 L794,1009 Z" fill="#d4af37" opacity="0.8"/>
-    </svg>
-  </div>
+  @if(!empty($backgroundPath) && file_exists($backgroundPath))
+    <img src="{{ $backgroundPath }}" alt="Background Sertifikat" class="bg-custom">
+  @else
+    <div class="bg">
+      <svg width="210mm" height="297mm" viewBox="0 0 794 1123" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0"    width="794" height="11" fill="#d4af37"/>
+        <rect x="0" y="1112" width="794" height="11" fill="#d4af37"/>
+        <rect x="0"   y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
+        <rect x="783" y="0" width="11"  height="1123" fill="#1e5a8e" opacity="0.3"/>
+        <path d="M0,0 L114,0 L114,11 L11,11 L11,114 L0,114 Z"         fill="#d4af37" opacity="0.8"/>
+        <path d="M794,0 L680,0 L680,11 L783,11 L783,114 L794,114 Z"   fill="#d4af37" opacity="0.8"/>
+        <path d="M0,1123 L114,1123 L114,1112 L11,1112 L11,1009 L0,1009 Z"       fill="#d4af37" opacity="0.8"/>
+        <path d="M794,1123 L680,1123 L680,1112 L783,1112 L783,1009 L794,1009 Z" fill="#d4af37" opacity="0.8"/>
+      </svg>
+    </div>
+  @endif
 
   <div class="frame-outer"></div>
   <div class="frame-inner"></div>
@@ -662,71 +862,93 @@
       <thead>
         <tr>
           <th class="td-no">No<span class="th-en">No.</span></th>
-          <th>ELEMEN KOMPETENSI<span class="th-en">Competency Elements</span></th>
+          <th style="width: 36mm;">KODE KOMPETEN<span class="th-en">Competency Code</span></th>
+          <th>JUDUL KOMPETEN<span class="th-en">Competency Title</span></th>
         </tr>
       </thead>
       <tbody>
         @php
-          $isNewFormat = is_array($kompetensi) && (isset($kompetensi['utama']) || isset($kompetensi['pendukung']));
-          $rowNum = 1;
-        @endphp
-        @if($isNewFormat)
-          {{-- ── SECTION I: KRITERIA ELEMEN KOMPETENSI UTAMA ── --}}
-          <tr>
-            <td class="td-no td-section">I</td>
-            <td class="td-section">Kriteria Elemen Kompetensi Utama</td>
-          </tr>
-          @php
-            $subSections = [
-              'PERENCANAAN &amp; PERSIAPAN' => ['key' => 'perencanaan_persiapan'],
-              'IMPLEMENTASI'                => ['key' => 'implementasi'],
-              'PENGUJIAN &amp; DOKUMENTASI' => ['key' => 'pengujian_dokumentasi'],
-            ];
-          @endphp
-          @foreach($subSections as $subLabel => $subMeta)
-            @php $items = $kompetensi['utama'][$subMeta['key']] ?? []; @endphp
-            @if(count($items) > 0)
-              <tr>
-                <td colspan="2" class="td-sub">{!! $subLabel !!}</td>
-              </tr>
-              @foreach($items as $k)
-                <tr>
-                  <td class="td-no">{{ $rowNum++ }}</td>
-                  <td>{{ $k['judul'] ?? '-' }}</td>
-                </tr>
-              @endforeach
-            @endif
-          @endforeach
+          $rows = [];
+          if (is_array($kompetensi)) {
+            // New grouped format: [{sub_judul, items}]
+            $isNewGroupFormat = !empty($kompetensi) && isset($kompetensi[0]['items']);
+            // Old object format: {utama: {...}, pendukung: [...]}
+            $isOldGroupFormat = isset($kompetensi['utama']) || isset($kompetensi['pendukung']);
 
-          {{-- ── SECTION II: KRITERIA ELEMEN KOMPETENSI PENDUKUNG ── --}}
-          @php $pendukung = $kompetensi['pendukung'] ?? []; @endphp
-          @if(count($pendukung) > 0)
+            if ($isNewGroupFormat) {
+              $itemNo = 0;
+              foreach ($kompetensi as $group) {
+                $subJudul = $group['sub_judul'] ?? '';
+                $items = $group['items'] ?? [];
+                if ($subJudul !== '') {
+                  $rows[] = ['_type' => 'header', 'label' => $subJudul];
+                }
+                foreach ($items as $item) {
+                  if (is_array($item)) {
+                    $itemNo++;
+                    $rows[] = ['_type' => 'item', 'no' => $itemNo, 'kode' => $item['kode'] ?? '-', 'judul' => $item['judul'] ?? '-'];
+                  }
+                }
+              }
+            } elseif ($isOldGroupFormat) {
+              $utama = $kompetensi['utama'] ?? [];
+              $groupKeys = ['perencanaan_persiapan', 'implementasi', 'pengujian_dokumentasi'];
+              $groupLabels = ['Perencanaan dan Persiapan', 'Implementasi', 'Pengujian & Dokumentasi'];
+              $itemNo = 0;
+              foreach ($groupKeys as $ki => $key) {
+                $items = $utama[$key] ?? [];
+                if (!empty($items)) {
+                  $rows[] = ['_type' => 'header', 'label' => $groupLabels[$ki]];
+                  foreach ($items as $item) {
+                    if (is_array($item)) {
+                      $itemNo++;
+                      $rows[] = ['_type' => 'item', 'no' => $itemNo, 'kode' => $item['kode'] ?? '-', 'judul' => $item['judul'] ?? '-'];
+                    }
+                  }
+                }
+              }
+              $pendukung = $kompetensi['pendukung'] ?? [];
+              if (!empty($pendukung)) {
+                $rows[] = ['_type' => 'header', 'label' => 'Kompetensi Pendukung'];
+                foreach ($pendukung as $item) {
+                  if (is_array($item)) {
+                    $itemNo++;
+                    $rows[] = ['_type' => 'item', 'no' => $itemNo, 'kode' => $item['kode'] ?? '-', 'judul' => $item['judul'] ?? '-'];
+                  }
+                }
+              }
+            } else {
+              $itemNo = 0;
+              foreach ($kompetensi as $item) {
+                if (is_array($item)) {
+                  $itemNo++;
+                  $rows[] = ['_type' => 'item', 'no' => $itemNo, 'kode' => $item['kode'] ?? '-', 'judul' => $item['judul'] ?? '-'];
+                }
+              }
+            }
+          }
+        @endphp
+        @forelse($rows as $row)
+          @if($row['_type'] === 'header')
             <tr>
-              <td class="td-no td-section">II</td>
-              <td class="td-section">Kriteria Elemen Kompetensi Pendukung</td>
-            </tr>
-            @foreach($pendukung as $k)
-              <tr>
-                <td class="td-no">{{ $rowNum++ }}</td>
-                <td>{{ $k['judul'] ?? '-' }}</td>
-              </tr>
-            @endforeach
-          @endif
-        @else
-          {{-- ── FALLBACK: old flat array format ── --}}
-          @forelse($kompetensi as $index => $k)
-            <tr>
-              <td class="td-no">{{ $index + 1 }}</td>
-              <td>{{ $k['judul'] ?? $k['kode'] ?? '-' }}</td>
-            </tr>
-          @empty
-            <tr>
-              <td colspan="2" style="padding:10mm 0; text-align:center; font-style:italic; color:#718096;">
-                Data kompetensi belum diisi.
+              <td colspan="3" style="background:#2d3748; color:#fff; font-size:8pt; font-weight:600; padding:4px 6px;">
+                {{ $row['label'] }}
               </td>
             </tr>
-          @endforelse
-        @endif
+          @else
+            <tr>
+              <td class="td-no">{{ $row['no'] }}</td>
+              <td>{{ $row['kode'] }}</td>
+              <td>{{ $row['judul'] }}</td>
+            </tr>
+          @endif
+        @empty
+          <tr>
+            <td colspan="3" style="padding:10mm 0; text-align:center; font-style:italic; color:#718096;">
+              Data kompetensi belum diisi.
+            </td>
+          </tr>
+        @endforelse
       </tbody>
     </table>
 
