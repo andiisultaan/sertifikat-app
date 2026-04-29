@@ -66,12 +66,24 @@ class DigitalSignatureService
         ], $opensslConfig));
 
         if ($privateKeyRes === false) {
-            throw new \RuntimeException('Gagal membuat RSA key pair: ' . openssl_error_string());
+            $errors = [];
+            while ($msg = openssl_error_string()) {
+                $errors[] = $msg;
+            }
+            throw new \RuntimeException('Gagal membuat RSA key pair: ' . implode(' | ', $errors ?: ['unknown error']));
         }
 
         // Export private key PEM
         $privateKeyPem = '';
-        openssl_pkey_export($privateKeyRes, $privateKeyPem, null, $opensslConfig ?: []);
+        $exported = openssl_pkey_export($privateKeyRes, $privateKeyPem, null, $opensslConfig ?: []);
+
+        if (! $exported || empty($privateKeyPem)) {
+            $errors = [];
+            while ($msg = openssl_error_string()) {
+                $errors[] = $msg;
+            }
+            throw new \RuntimeException('Gagal export private key: ' . implode(' | ', $errors ?: ['unknown error']));
+        }
 
         // Export public key PEM
         $details      = openssl_pkey_get_details($privateKeyRes);
