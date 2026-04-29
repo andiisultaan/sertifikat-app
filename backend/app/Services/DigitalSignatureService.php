@@ -71,7 +71,7 @@ class DigitalSignatureService
 
         // Export private key PEM
         $privateKeyPem = '';
-        openssl_pkey_export($privateKeyRes, $privateKeyPem, null, $opensslConfig ?: null);
+        openssl_pkey_export($privateKeyRes, $privateKeyPem, null, $opensslConfig ?: []);
 
         // Export public key PEM
         $details      = openssl_pkey_get_details($privateKeyRes);
