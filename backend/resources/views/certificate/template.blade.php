@@ -246,6 +246,14 @@
       font-weight: 700;
       color: #d4af37;
     }
+    .predikat-badge-en {
+      margin-top: 1mm;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 10pt;
+      font-weight: 600;
+      color: #a08c2a;
+      font-style: italic;
+    }
     .nilai-text {
       margin-top: 2.5mm;
       font-size: 10pt;
@@ -372,6 +380,11 @@
       color: #1e3a5f;
       display: block;
       text-decoration: underline;
+    }
+    .esig-nip {
+      font-size: 6.5pt;
+      color: #2c3e50;
+      display: block;
     }
     .esig-algo {
       font-size: 5.5pt;
@@ -523,19 +536,22 @@
     /* ── ASSESSORS (page 2 footer) ── */
     table.assessors {
       margin-top: 8mm;
-      width: 100%;
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
       border-collapse: collapse;
       font-size: 9.5pt;
     }
     table.assessors td {
-      padding: 2.5mm 0;
+      padding: 2.5mm 3mm;
       vertical-align: top;
       color: #2c3e50;
     }
     .assessor-role {
-      width: 50mm;
+      width: 42mm;
       font-weight: 700;
       color: #1e3a5f;
+      text-align: right;
     }
     .assessor-role em {
       display: block;
@@ -713,12 +729,23 @@
 
     {{-- Predikat --}}
     <div class="predikat-section">
+      @php
+        $predikatEn = match(strtolower(trim($predikat ?? ''))) {
+          'sangat kompeten' => 'Very Competent',
+          'kompeten'        => 'Competent',
+          'belum kompeten'  => 'Not Yet Competent',
+          default           => '',
+        };
+      @endphp
       <div class="predikat-label">
         dengan predikat<br>
         <span class="info-en">with achievement level</span>
       </div>
       <div class="predikat-badge-wrap">
         <span class="predikat-badge">{{ $predikat }}</span>
+        @if($predikatEn)
+          <div class="predikat-badge-en">{{ $predikatEn }}</div>
+        @endif
       </div>
       <div class="nilai-text">
         Nilai Akhir :&nbsp;<strong>{{ $nilai_akhir }}</strong><br>
@@ -730,15 +757,9 @@
 
   {{-- Signatures Wrapper --}}
   <div class="signature-wrapper">
-    {{-- Validity --}}
-    <div class="valid-section">
-      Sertifikat ini berlaku untuk : 3 (tiga) Tahun<br>
-      <span class="info-en">This certificate is valid for : 3 (three) Years</span>
-    </div>
-
     {{-- Date --}}
     <div class="sig-date-section">
-      {{ $kota ?? '' }}{{ ($kota ?? '') ? ', ' : '' }}{{ \Carbon\Carbon::parse($tanggal_terbit)->translatedFormat('d F Y') }}
+      {{ $kota ?? '' }}{{ ($kota ?? '') ? ', ' : '' }}{{ \Carbon\Carbon::parse($tanggal_selesai_ujian ?? $tanggal_terbit)->translatedFormat('d F Y') }}
     </div>
 
     {{-- Signatures --}}
@@ -760,6 +781,9 @@
                 <span class="esig-label">Ditandatangani secara elektronik oleh:</span>
                 <span class="esig-jabatan">Kepala Sekolah</span>
                 <span class="esig-nama">{{ $nama_kepsek ?? '' }}</span>
+                @if(!empty($nip_kepsek))
+                  <span class="esig-nip">NIP. {{ $nip_kepsek }}</span>
+                @endif
                 @if(!empty($signature_fingerprint))
                   <span class="esig-algo">{{ $signature_algorithm ?? 'RSA-SHA256' }} &bull; {{ implode(' ', str_split(substr($signature_fingerprint, 0, 16), 8)) }}</span>
                 @endif

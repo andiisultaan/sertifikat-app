@@ -138,7 +138,7 @@ class CertificateService
             $data = [
                 'nama'                   => $siswa->nama,
                 'nisn'                   => $siswa->nisn,
-                'jurusan'                => $siswa->jurusan,
+                'jurusan'                => $ukk->jurusan ?: $siswa->jurusan,
                 'tempat_lahir'           => $siswa->tempat_lahir,
                 'nama_ukk'               => $ukk->nama,
                 'judul_pengujian'        => $ukk->judul_pengujian,
@@ -148,6 +148,7 @@ class CertificateService
                 'status'                 => $nilai->status,
                 'nomor_sertifikat'       => $sertifikat->nomor_sertifikat,
                 'tanggal_terbit'         => $tanggalTerbit->toDateString(),
+                'tanggal_selesai_ujian'  => $ukk->tanggal_selesai?->toDateString(),
                 'kompetensi'             => $ukk->kompetensi ?? [],
                 'nama_sekolah'           => $ukk->nama_sekolah ?: $sekolah?->nama,
                 'alamat_sekolah'         => $ukk->alamat_sekolah ?: $sekolah?->alamat,
