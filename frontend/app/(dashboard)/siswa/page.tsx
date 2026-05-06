@@ -1,32 +1,26 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
-import { toast } from '@/lib/toast';
-import { useAuthStore } from '@/store/authStore';
+import { useState } from "react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import { toast } from "@/lib/toast";
+import { useAuthStore } from "@/store/authStore";
 
-import { useSiswaList, useSiswa, useCreateSiswa, useUpdateSiswa, useDeleteSiswa } from '@/lib/hooks/useSiswa';
-import { useSekolahList } from '@/lib/hooks/useSekolah';
-import { SiswaFormValues } from '@/lib/validations/siswaSchema';
-import { SiswaForm } from '@/components/forms/SiswaForm';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { SkeletonTableRows } from '@/components/ui/skeleton-table';
-import { Pagination } from '@/components/ui/pagination';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { useSiswaList, useSiswa, useCreateSiswa, useUpdateSiswa, useDeleteSiswa } from "@/lib/hooks/useSiswa";
+import { useSekolahList } from "@/lib/hooks/useSekolah";
+import { SiswaFormValues } from "@/lib/validations/siswaSchema";
+import { SiswaForm } from "@/components/forms/SiswaForm";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { SkeletonTableRows } from "@/components/ui/skeleton-table";
+import { Pagination } from "@/components/ui/pagination";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export default function SiswaPage() {
   const { user } = useAuthStore();
-  const isSuperAdmin = user?.role === 'super_admin';
-  const [search, setSearch] = useState('');
+  const isSuperAdmin = user?.role === "super_admin";
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [sekolahId, setSekolahId] = useState<number | undefined>(undefined);
   const [open, setOpen] = useState(false);
@@ -50,22 +44,31 @@ export default function SiswaPage() {
   const handleDelete = () => {
     if (!deleteTarget) return;
     deleteSiswa(deleteTarget.id, {
-      onSuccess: () => { toast.success('Siswa berhasil dihapus'); setDeleteTarget(null); },
-      onError: () => toast.error('Gagal menghapus siswa'),
+      onSuccess: () => {
+        toast.success("Siswa berhasil dihapus");
+        setDeleteTarget(null);
+      },
+      onError: () => toast.error("Gagal menghapus siswa"),
     });
   };
 
   const handleSubmit = (values: SiswaFormValues) => {
     createSiswa(values, {
-      onSuccess: () => { setOpen(false); toast.success('Siswa berhasil ditambahkan'); },
-      onError: () => toast.error('Gagal menambahkan siswa'),
+      onSuccess: () => {
+        setOpen(false);
+        toast.success("Siswa berhasil ditambahkan");
+      },
+      onError: () => toast.error("Gagal menambahkan siswa"),
     });
   };
 
   const handleUpdate = (values: SiswaFormValues) => {
     updateSiswa(values, {
-      onSuccess: () => { setEditTarget(null); toast.success('Siswa berhasil diperbarui'); },
-      onError: () => toast.error('Gagal memperbarui siswa'),
+      onSuccess: () => {
+        setEditTarget(null);
+        toast.success("Siswa berhasil diperbarui");
+      },
+      onError: () => toast.error("Gagal memperbarui siswa"),
     });
   };
 
@@ -85,26 +88,18 @@ export default function SiswaPage() {
             <DialogTitle>Tambah Siswa</DialogTitle>
             <DialogDescription>Isi data siswa di bawah ini lalu klik Simpan.</DialogDescription>
           </DialogHeader>
-          {apiError && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-2">
-              {apiError}
-            </p>
-          )}
+          {apiError && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-2">{apiError}</p>}
           <SiswaForm onSubmit={handleSubmit} isPending={isPending} />
         </DialogContent>
       </Dialog>
 
-      <Dialog open={editTarget !== null} onOpenChange={(v) => !v && setEditTarget(null)}>
+      <Dialog open={editTarget !== null} onOpenChange={v => !v && setEditTarget(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit Siswa</DialogTitle>
             <DialogDescription>Ubah data siswa lalu klik Simpan.</DialogDescription>
           </DialogHeader>
-          {updateApiError && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-2">
-              {updateApiError}
-            </p>
-          )}
+          {updateApiError && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2 mb-2">{updateApiError}</p>}
           {editLoading ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -127,7 +122,7 @@ export default function SiswaPage() {
 
       <ConfirmDialog
         open={!!deleteTarget}
-        onOpenChange={(v) => !v && setDeleteTarget(null)}
+        onOpenChange={v => !v && setDeleteTarget(null)}
         title={`Hapus siswa "${deleteTarget?.nama}"?`}
         description="Data siswa akan dihapus permanen dan tidak dapat dikembalikan."
         onConfirm={handleDelete}
@@ -138,15 +133,18 @@ export default function SiswaPage() {
         <div className="p-4 border-b">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Input
-              placeholder="Cari nama atau NIS..."
+              placeholder="Cari nama atau NISN..."
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              onChange={e => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
               className="w-full sm:max-w-xs"
             />
             {isSuperAdmin && (
               <select
-                value={sekolahId ?? ''}
-                onChange={(e) => {
+                value={sekolahId ?? ""}
+                onChange={e => {
                   const value = e.target.value;
                   setSekolahId(value ? Number(value) : undefined);
                   setPage(1);
@@ -154,7 +152,7 @@ export default function SiswaPage() {
                 className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm sm:max-w-xs"
               >
                 <option value="">Semua sekolah</option>
-                {sekolahList?.map((sekolah) => (
+                {sekolahList?.map(sekolah => (
                   <option key={sekolah.id} value={sekolah.id}>
                     {sekolah.nama}
                   </option>
@@ -167,27 +165,31 @@ export default function SiswaPage() {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>
-              {['NIS', 'Nama', 'Jurusan', 'Th. Masuk', 'JK', 'Aksi'].map((h) => (
-                <th key={h} className="px-4 py-3 text-left font-semibold text-gray-600">{h}</th>
+              {["NISN", "Nama", "Jurusan", "Th. Masuk", "JK", "Aksi"].map(h => (
+                <th key={h} className="px-4 py-3 text-left font-semibold text-gray-600">
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
           {isLoading ? (
-            <SkeletonTableRows cols={6} widths={['w-24', 'w-40', 'w-28', 'w-16', 'w-8', 'w-16']} />
+            <SkeletonTableRows cols={6} widths={["w-24", "w-40", "w-28", "w-16", "w-8", "w-16"]} />
           ) : (
             <tbody className="divide-y">
               {data?.data.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400">Tidak ada data siswa.</td>
+                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                    Tidak ada data siswa.
+                  </td>
                 </tr>
               )}
-              {data?.data.map((s) => (
+              {data?.data.map(s => (
                 <tr key={s.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono">{s.nis}</td>
+                  <td className="px-4 py-3 font-mono">{s.nisn}</td>
                   <td className="px-4 py-3">{s.nama}</td>
                   <td className="px-4 py-3">{s.jurusan}</td>
                   <td className="px-4 py-3">{s.tahun_masuk}</td>
-                  <td className="px-4 py-3">{s.jenis_kelamin === 'L' ? 'L' : 'P'}</td>
+                  <td className="px-4 py-3">{s.jenis_kelamin === "L" ? "L" : "P"}</td>
                   <td className="px-4 py-3 flex gap-1">
                     <Button variant="outline" size="icon-sm" onClick={() => setEditTarget(s.id)}>
                       <Pencil className="size-3.5" />
@@ -204,15 +206,7 @@ export default function SiswaPage() {
           )}
         </table>
 
-        {!isLoading && data && (
-          <Pagination
-            page={page}
-            lastPage={data.last_page}
-            total={data.total}
-            perPage={15}
-            onPageChange={setPage}
-          />
-        )}
+        {!isLoading && data && <Pagination page={page} lastPage={data.last_page} total={data.total} perPage={15} onPageChange={setPage} />}
       </div>
     </div>
   );

@@ -24,22 +24,22 @@ class PublicNilaiController extends Controller
     {
         $data = $request->validate([
             'sekolah_id' => ['required', 'integer', 'exists:sekolah,id'],
-            'nis'        => ['nullable', 'string', 'max:20'],
+            'nisn'       => ['nullable', 'string', 'max:20'],
             'nama'       => ['nullable', 'string', 'max:255'],
         ]);
 
-        $nis = trim((string) ($data['nis'] ?? ''));
+        $nisn = trim((string) ($data['nisn'] ?? ''));
         $nama = trim((string) ($data['nama'] ?? ''));
 
-        if ($nis === '' && $nama === '') {
+        if ($nisn === '' && $nama === '') {
             return response()->json([
-                'message' => 'Isi minimal NIS atau nama siswa.',
+                'message' => 'Isi minimal NISN atau nama siswa.',
             ], 422);
         }
 
         $siswaQuery = Siswa::query()
             ->where('sekolah_id', (int) $data['sekolah_id'])
-            ->when($nis !== '', fn ($q) => $q->where('nis', $nis))
+            ->when($nisn !== '', fn ($q) => $q->where('nisn', $nisn))
             ->when($nama !== '', fn ($q) => $q->where('nama', 'like', '%' . $nama . '%'));
 
         $siswa = $siswaQuery->orderBy('nama')->first();
@@ -51,7 +51,7 @@ class PublicNilaiController extends Controller
         }
 
         $nilai = Nilai::query()
-            ->with(['ukk:id,nama,jurusan,tahun,tanggal_mulai,tanggal_selesai', 'siswa:id,sekolah_id,nis,nama,jurusan'])
+            ->with(['ukk:id,nama,jurusan,tahun,tanggal_mulai,tanggal_selesai', 'siswa:id,sekolah_id,nisn,nama,jurusan'])
             ->where('siswa_id', $siswa->id)
             ->latest()
             ->get()
@@ -72,7 +72,7 @@ class PublicNilaiController extends Controller
         return response()->json([
             'siswa' => [
                 'id'         => $siswa->id,
-                'nis'        => $siswa->nis,
+                'nisn'       => $siswa->nisn,
                 'nama'       => $siswa->nama,
                 'jurusan'    => $siswa->jurusan,
                 'sekolah_id' => $siswa->sekolah_id,

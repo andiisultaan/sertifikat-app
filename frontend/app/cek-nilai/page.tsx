@@ -29,7 +29,7 @@ type NilaiItem = {
 type SearchResponse = {
   siswa: {
     id: number;
-    nis: string;
+    nisn: string;
     nama: string;
     jurusan: string;
     sekolah_id: number;
@@ -54,7 +54,7 @@ function fmtDate(v: string | null): string {
 export default function CekNilaiPage() {
   const [schools, setSchools] = useState<School[]>([]);
   const [schoolId, setSchoolId] = useState("");
-  const [nis, setNis] = useState("");
+  const [nisn, setNisn] = useState("");
   const [nama, setNama] = useState("");
   const [isLoadingSchools, setIsLoadingSchools] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
@@ -85,7 +85,7 @@ export default function CekNilaiPage() {
 
   const selectedSchoolName = useMemo(() => {
     const id = Number(schoolId);
-    return schools.find((s) => s.id === id)?.nama ?? "-";
+    return schools.find(s => s.id === id)?.nama ?? "-";
   }, [schoolId, schools]);
 
   const onSearch = async (e: FormEvent) => {
@@ -93,15 +93,15 @@ export default function CekNilaiPage() {
     setError(null);
     setResult(null);
 
-    if (!schoolId || (!nis.trim() && !nama.trim())) {
-      setError("Pilih sekolah lalu isi NIS atau nama siswa.");
+    if (!schoolId || (!nisn.trim() && !nama.trim())) {
+      setError("Pilih sekolah lalu isi NISN atau nama siswa.");
       return;
     }
 
     try {
       setIsSearching(true);
       const q = new URLSearchParams({ sekolah_id: schoolId });
-      if (nis.trim()) q.set("nis", nis.trim());
+      if (nisn.trim()) q.set("nisn", nisn.trim());
       if (nama.trim()) q.set("nama", nama.trim());
       const res = await fetch(`${apiBase}/public/nilai?${q.toString()}`, { cache: "no-store" });
       const data = await res.json();
@@ -123,19 +123,14 @@ export default function CekNilaiPage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <h1 className="text-2xl font-bold text-slate-900">Cek Nilai Siswa</h1>
-          <p className="mt-1 text-sm text-slate-600">Halaman publik untuk melihat nilai berdasarkan sekolah dan NIS atau nama siswa.</p>
+          <p className="mt-1 text-sm text-slate-600">Halaman publik untuk melihat nilai berdasarkan sekolah dan NISN atau nama siswa.</p>
 
           <form onSubmit={onSearch} className="mt-6 grid gap-4 md:grid-cols-[1fr_1fr_1fr_auto]">
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700">Sekolah</label>
-              <select
-                value={schoolId}
-                onChange={(e) => setSchoolId(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
-                disabled={isLoadingSchools}
-              >
+              <select value={schoolId} onChange={e => setSchoolId(e.target.value)} className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm" disabled={isLoadingSchools}>
                 <option value="">{isLoadingSchools ? "Memuat sekolah..." : "Pilih sekolah"}</option>
-                {schools.map((s) => (
+                {schools.map(s => (
                   <option key={s.id} value={s.id}>
                     {s.nama}
                   </option>
@@ -144,23 +139,13 @@ export default function CekNilaiPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">NIS</label>
-              <input
-                value={nis}
-                onChange={(e) => setNis(e.target.value)}
-                placeholder="Masukkan NIS (opsional)"
-                className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
-              />
+              <label className="text-sm font-medium text-slate-700">NISN</label>
+              <input value={nisn} onChange={e => setNisn(e.target.value)} placeholder="Masukkan NISN (opsional)" className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm" />
             </div>
 
             <div className="space-y-1">
               <label className="text-sm font-medium text-slate-700">Nama Siswa</label>
-              <input
-                value={nama}
-                onChange={(e) => setNama(e.target.value)}
-                placeholder="Masukkan nama (opsional)"
-                className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm"
-              />
+              <input value={nama} onChange={e => setNama(e.target.value)} placeholder="Masukkan nama (opsional)" className="flex h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm" />
             </div>
 
             <div className="self-end">
@@ -186,7 +171,7 @@ export default function CekNilaiPage() {
                   <span className="font-medium">Sekolah:</span> {selectedSchoolName}
                 </p>
                 <p>
-                  <span className="font-medium">NIS:</span> {result.siswa.nis}
+                  <span className="font-medium">NISN:</span> {result.siswa.nisn}
                 </p>
                 <p>
                   <span className="font-medium">Nama:</span> {result.siswa.nama}
@@ -201,7 +186,7 @@ export default function CekNilaiPage() {
               <table className="w-full text-sm">
                 <thead className="bg-slate-100">
                   <tr>
-                    {["UKK", "Tahun", "Internal", "Eksternal", "Nilai Akhir", "Predikat", "Status", "Update"].map((h) => (
+                    {["UKK", "Tahun", "Internal", "Eksternal", "Nilai Akhir", "Predikat", "Status", "Update"].map(h => (
                       <th key={h} className="px-4 py-3 text-left font-semibold text-slate-700">
                         {h}
                       </th>
@@ -216,7 +201,7 @@ export default function CekNilaiPage() {
                       </td>
                     </tr>
                   )}
-                  {result.nilai.map((n) => (
+                  {result.nilai.map(n => (
                     <tr key={n.id} className="hover:bg-slate-50">
                       <td className="px-4 py-3">{n.ukk?.nama ?? "-"}</td>
                       <td className="px-4 py-3">{n.ukk?.tahun ?? "-"}</td>

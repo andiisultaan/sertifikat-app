@@ -8,14 +8,7 @@ import { Badge } from "@/components/ui/badge-2";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export function RecentSiswa() {
   const { data, isLoading } = useSiswaList({ per_page: 8, page: 1 });
@@ -24,9 +17,7 @@ export function RecentSiswa() {
     <Card>
       <CardHeader>
         <CardTitle>Siswa Terdaftar</CardTitle>
-        <CardDescription>
-          {isLoading ? "Memuat data..." : `Menampilkan ${data?.data?.length ?? 0} dari ${data?.total ?? 0} siswa`}
-        </CardDescription>
+        <CardDescription>{isLoading ? "Memuat data..." : `Menampilkan ${data?.data?.length ?? 0} dari ${data?.total ?? 0} siswa`}</CardDescription>
         <CardAction>
           <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/siswa" />}>
             Lihat Semua
@@ -38,7 +29,7 @@ export function RecentSiswa() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="pl-6">NIS</TableHead>
+              <TableHead className="pl-6">NISN</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>Jurusan</TableHead>
               <TableHead>Tahun Masuk</TableHead>
@@ -49,24 +40,31 @@ export function RecentSiswa() {
             {isLoading
               ? Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell className="pl-6"><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                    <TableCell className="pr-6"><Skeleton className="h-5 w-16" /></TableCell>
+                    <TableCell className="pl-6">
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-40" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-32" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-16" />
+                    </TableCell>
+                    <TableCell className="pr-6">
+                      <Skeleton className="h-5 w-16" />
+                    </TableCell>
                   </TableRow>
                 ))
-              : data?.data?.map((siswa) => (
+              : data?.data?.map(siswa => (
                   <TableRow key={siswa.id}>
-                    <TableCell className="pl-6 font-mono text-sm">{siswa.nis}</TableCell>
+                    <TableCell className="pl-6 font-mono text-sm">{siswa.nisn}</TableCell>
                     <TableCell className="font-medium">{siswa.nama}</TableCell>
                     <TableCell className="text-muted-foreground">{siswa.jurusan}</TableCell>
                     <TableCell className="text-muted-foreground">{siswa.tahun_masuk}</TableCell>
                     <TableCell className="pr-6">
-                      <Badge
-                        variant={siswa.jenis_kelamin === "L" ? "info" : "warning"}
-                        appearance="light"
-                      >
+                      <Badge variant={siswa.jenis_kelamin === "L" ? "info" : "warning"} appearance="light">
                         {siswa.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"}
                       </Badge>
                     </TableCell>

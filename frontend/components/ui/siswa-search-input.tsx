@@ -14,7 +14,7 @@ interface SiswaSearchInputProps {
 
 export function SiswaSearchInput({ siswaList, value, onChange, error }: SiswaSearchInputProps) {
   const selected = siswaList.find(s => s.id === value) ?? null;
-  const [query, setQuery] = useState(selected ? `${selected.nama} (${selected.nis})` : "");
+  const [query, setQuery] = useState(selected ? `${selected.nama} (${selected.nisn})` : "");
   const [prevValue, setPrevValue] = useState(value);
   const [open, setOpen] = useState(false);
   const debouncedQuery = useDebounce(query, 300);
@@ -24,10 +24,10 @@ export function SiswaSearchInput({ siswaList, value, onChange, error }: SiswaSea
   if (prevValue !== value) {
     setPrevValue(value);
     const s = value ? siswaList.find(s => s.id === value) : null;
-    setQuery(s ? `${s.nama} (${s.nis})` : "");
+    setQuery(s ? `${s.nama} (${s.nisn})` : "");
   }
 
-  const filtered = debouncedQuery.trim() ? siswaList.filter(s => s.nama.toLowerCase().includes(debouncedQuery.toLowerCase()) || s.nis.toLowerCase().includes(debouncedQuery.toLowerCase())) : siswaList.slice(0, 20);
+  const filtered = debouncedQuery.trim() ? siswaList.filter(s => s.nama.toLowerCase().includes(debouncedQuery.toLowerCase()) || s.nisn.toLowerCase().includes(debouncedQuery.toLowerCase())) : siswaList.slice(0, 20);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -36,7 +36,7 @@ export function SiswaSearchInput({ siswaList, value, onChange, error }: SiswaSea
         // Reset query to selected label if closed without picking
         if (value) {
           const s = siswaList.find(s => s.id === value);
-          if (s) setQuery(`${s.nama} (${s.nis})`);
+          if (s) setQuery(`${s.nama} (${s.nisn})`);
         } else {
           setQuery("");
         }
@@ -49,7 +49,7 @@ export function SiswaSearchInput({ siswaList, value, onChange, error }: SiswaSea
   return (
     <div ref={ref} className="relative">
       <Input
-        placeholder="Cari nama atau NIS..."
+        placeholder="Cari nama atau NISN..."
         value={query}
         onChange={e => {
           setQuery(e.target.value);
@@ -71,11 +71,11 @@ export function SiswaSearchInput({ siswaList, value, onChange, error }: SiswaSea
                 onMouseDown={e => {
                   e.preventDefault();
                   onChange(s.id);
-                  setQuery(`${s.nama} (${s.nis})`);
+                  setQuery(`${s.nama} (${s.nisn})`);
                   setOpen(false);
                 }}
               >
-                {s.nama} <span className="text-muted-foreground">({s.nis})</span>
+                {s.nama} <span className="text-muted-foreground">({s.nisn})</span>
               </li>
             ))
           )}

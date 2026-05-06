@@ -15,7 +15,7 @@ class StoreSiswaRequest extends FormRequest
     {
         return [
             'sekolah_id'     => ['sometimes', 'nullable', 'exists:sekolah,id'],
-            'nis'            => ['required', 'string', 'max:20', 'unique:siswa,nis'],
+            'nisn'           => ['required', 'string', 'max:20', 'unique:siswa,nisn'],
             'nama'           => ['required', 'string', 'max:255'],
             'tempat_lahir'   => ['required', 'string', 'max:100'],
             'tanggal_lahir'  => ['required', 'date'],

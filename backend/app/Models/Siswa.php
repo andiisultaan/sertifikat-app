@@ -15,7 +15,7 @@ class Siswa extends Model
 
     protected $fillable = [
         'sekolah_id',
-        'nis',
+        'nisn',
         'nama',
         'tempat_lahir',
         'tanggal_lahir',

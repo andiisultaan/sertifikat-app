@@ -1,12 +1,12 @@
-import api from '@/lib/api';
+import api from "@/lib/api";
 
 export interface Siswa {
   id: number;
-  nis: string;
+  nisn: string;
   nama: string;
   tempat_lahir: string;
   tanggal_lahir: string;
-  jenis_kelamin: 'L' | 'P';
+  jenis_kelamin: "L" | "P";
   jurusan: string;
   tahun_masuk: number;
   created_at: string;
@@ -14,11 +14,11 @@ export interface Siswa {
 }
 
 export interface SiswaPayload {
-  nis: string;
+  nisn: string;
   nama: string;
   tempat_lahir: string;
   tanggal_lahir: string;
-  jenis_kelamin: 'L' | 'P';
+  jenis_kelamin: "L" | "P";
   jurusan: string;
   tahun_masuk: number;
 }
@@ -33,7 +33,7 @@ export interface PaginatedResponse<T> {
 
 export const siswaService = {
   async list(params?: { page?: number; per_page?: number; search?: string; sekolah_id?: number }) {
-    const { data } = await api.get<PaginatedResponse<Siswa>>('/siswa', { params });
+    const { data } = await api.get<PaginatedResponse<Siswa>>("/siswa", { params });
     return data;
   },
 
@@ -43,7 +43,7 @@ export const siswaService = {
   },
 
   async create(payload: SiswaPayload) {
-    const { data } = await api.post<Siswa>('/siswa', payload);
+    const { data } = await api.post<Siswa>("/siswa", payload);
     return data;
   },
 

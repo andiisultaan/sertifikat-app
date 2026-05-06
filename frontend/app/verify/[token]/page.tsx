@@ -12,7 +12,7 @@ interface VerifyResult {
   message: string;
   nomor_sertifikat?: string;
   nama?: string;
-  nis?: string;
+  nisn?: string;
   jurusan?: string;
   nama_ukk?: string;
   predikat?: string;
@@ -70,7 +70,7 @@ export default async function VerifyPage({ params }: { params: Promise<{ token: 
 
               <InfoRow icon={Hash} label="Nomor Sertifikat" value={data.nomor_sertifikat} mono />
               <InfoRow icon={User} label="Nama Peserta" value={data.nama} />
-              <InfoRow icon={Hash} label="NISN" value={data.nis} mono />
+              <InfoRow icon={Hash} label="NISN" value={data.nisn} mono />
               <InfoRow icon={BookOpen} label="Kompetensi Keahlian" value={data.jurusan} />
               {data.nama_ukk && <InfoRow icon={BookOpen} label="Nama UKK" value={data.nama_ukk} />}
 

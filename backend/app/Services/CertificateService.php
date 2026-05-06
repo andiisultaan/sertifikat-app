@@ -89,7 +89,7 @@ class CertificateService
                 $signaturePayload = implode('|', [
                     $sertifikat->nomor_sertifikat,
                     $siswa->nama,
-                    $siswa->nis,
+                    $siswa->nisn,
                     $siswa->jurusan,
                     $nilai->nilai_akhir,
                     $nilai->predikat,
@@ -137,7 +137,7 @@ class CertificateService
 
             $data = [
                 'nama'                   => $siswa->nama,
-                'nis'                    => $siswa->nis,
+                'nisn'                   => $siswa->nisn,
                 'jurusan'                => $siswa->jurusan,
                 'tempat_lahir'           => $siswa->tempat_lahir,
                 'nama_ukk'               => $ukk->nama,

@@ -17,7 +17,7 @@ class UpdateSiswaRequest extends FormRequest
 
         return [
             'sekolah_id'     => ['sometimes', 'nullable', 'exists:sekolah,id'],
-            'nis'            => ['sometimes', 'string', 'max:20', "unique:siswa,nis,{$siswaId}"],
+            'nisn'           => ['sometimes', 'string', 'max:20', "unique:siswa,nisn,{$siswaId}"],
             'nama'           => ['sometimes', 'string', 'max:255'],
             'tempat_lahir'   => ['sometimes', 'string', 'max:100'],
             'tanggal_lahir'  => ['sometimes', 'date'],

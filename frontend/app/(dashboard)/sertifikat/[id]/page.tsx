@@ -117,8 +117,8 @@ export default function DetailSertifikatPage() {
             <p className="font-semibold">{siswa?.nama ?? "—"}</p>
           </div>
           <div>
-            <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">NIS</p>
-            <p>{siswa?.nis ?? "—"}</p>
+            <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">NISN</p>
+            <p>{siswa?.nisn ?? "—"}</p>
           </div>
           <div>
             <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Jurusan</p>

@@ -78,7 +78,7 @@ class CertificateVerifyController extends Controller
             'message'            => 'Sertifikat valid dan terverifikasi.',
             'nomor_sertifikat'   => $sertifikat->nomor_sertifikat,
             'nama'               => $siswa->nama,
-            'nis'                => $siswa->nis,
+            'nisn'               => $siswa->nisn,
             'jurusan'            => $siswa->jurusan,
             'nama_ukk'           => $ukk->nama,
             'predikat'           => $nilai->predikat,

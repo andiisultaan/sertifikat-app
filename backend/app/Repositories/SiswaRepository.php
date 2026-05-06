@@ -13,7 +13,7 @@ class SiswaRepository
             ->when($sekolahId, fn ($q) => $q->where('sekolah_id', $sekolahId))
             ->when($search, fn ($q) => $q->where(function ($searchQuery) use ($search): void {
                 $searchQuery->where('nama', 'like', "%{$search}%")
-                    ->orWhere('nis', 'like', "%{$search}%");
+                    ->orWhere('nisn', 'like', "%{$search}%");
             }))
             ->latest()
             ->paginate($perPage);

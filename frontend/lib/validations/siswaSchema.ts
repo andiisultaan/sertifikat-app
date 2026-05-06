@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const siswaSchema = z.object({
-  nis: z.string().min(1, "NIS wajib diisi.").max(20),
+  nisn: z.string().min(1, "NISN wajib diisi.").max(20),
   nama: z.string().min(1, "Nama wajib diisi.").max(255),
   tempat_lahir: z.string().min(1, "Tempat lahir wajib diisi.").max(100),
   tanggal_lahir: z.string().min(1, "Tanggal lahir wajib diisi."),

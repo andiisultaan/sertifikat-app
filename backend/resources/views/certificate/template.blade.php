@@ -688,7 +688,7 @@
     {{-- Name box --}}
     <div class="name-box">
       <div class="name">{{ $nama }}</div>
-      <div class="nis">NISN &nbsp;&bull;&nbsp; {{ $nis }}</div>
+      <div class="nis">NISN &nbsp;&bull;&nbsp; {{ $nisn }}</div>
     </div>
 
     {{-- Info rows --}}
@@ -853,7 +853,7 @@
       <div class="page2-sub">List of Assessed Competencies</div>
       <div class="page2-student">
         Peserta : <strong>{{ $nama }}</strong>
-        &nbsp;&bull;&nbsp; NISN: <strong>{{ $nis }}</strong>
+        &nbsp;&bull;&nbsp; NISN: <strong>{{ $nisn }}</strong>
         &nbsp;&bull;&nbsp; {{ $jurusan }}
       </div>
     </div>

@@ -122,7 +122,7 @@ class DigitalSignatureService
 
     /**
      * Build the canonical payload string that will be signed.
-     * Format: {nomor}|{nama}|{nis}|{jurusan}|{nilai_akhir}|{predikat}|{tanggal_terbit}
+     * Format: {nomor}|{nama}|{nisn}|{jurusan}|{nilai_akhir}|{predikat}|{tanggal_terbit}
      */
     public function buildPayload(Sertifikat $sertifikat): string
     {
@@ -135,7 +135,7 @@ class DigitalSignatureService
         return implode('|', [
             $sertifikat->nomor_sertifikat,
             $siswa->nama,
-            $siswa->nis,
+            $siswa->nisn,
             $siswa->jurusan,
             $nilai->nilai_akhir,
             $nilai->predikat,
