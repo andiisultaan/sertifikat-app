@@ -28,7 +28,7 @@ RUN composer install --optimize-autoloader --no-dev --no-scripts
 COPY . .
 
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
-    && composer dump-autoload --optimize --no-dev
+    && COMPOSER_PROCESS_TIMEOUT=2000 composer dump-autoload --optimize --no-dev
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
