@@ -768,7 +768,7 @@
         {{-- Kepala Sekolah --}}
         <td style="width:50%">
           <div class="sig-role">
-            Atas Nama {{ $nama_sekolah ?? 'Sekolah' }}<br>
+            Kepala {{ $nama_sekolah ?? 'SMK' }}<br>
             <em>On Behalf of the School</em>
           </div>
           {{-- QR Tanda Tangan Digital Kepala Sekolah --}}
