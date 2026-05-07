@@ -84,8 +84,10 @@ class CertificateService
             $isSignedKepsek             = false;
             $isSignedPenguji            = false;
 
-            // Canonical payload (sama untuk kedua penandatangan)
-            if ($sekolah) {
+            $mode = $sertifikat->mode ?? 'digital';
+
+            // Hanya proses tanda tangan digital jika mode = 'digital'
+            if ($mode === 'digital' && $sekolah) {
                 $signaturePayload = implode('|', [
                     $sertifikat->nomor_sertifikat,
                     $siswa->nama,
@@ -95,41 +97,41 @@ class CertificateService
                     $nilai->predikat,
                     $tanggalTerbit->format('Y-m-d'),
                 ]);
-            }
 
-            // Tanda tangan Kepala Sekolah
-            if ($sekolah && $this->sigService->hasPrivateKey($sekolah, 'kepsek')) {
-                try {
-                    $privateKeyPem = $this->sigService->getPrivateKey($sekolah, 'kepsek');
-                    $privateKey    = openssl_pkey_get_private($privateKeyPem);
-                    if ($privateKey !== false) {
-                        $rawSig = '';
-                        if (openssl_sign($signaturePayload, $rawSig, $privateKey, OPENSSL_ALGO_SHA256)) {
-                            $digitalSignatureKepsek = base64_encode($rawSig);
-                            $fingerprintKepsek      = strtoupper(substr(hash('sha256', $digitalSignatureKepsek), 0, 32));
-                            $isSignedKepsek         = true;
+                // Tanda tangan Kepala Sekolah
+                if ($this->sigService->hasPrivateKey($sekolah, 'kepsek')) {
+                    try {
+                        $privateKeyPem = $this->sigService->getPrivateKey($sekolah, 'kepsek');
+                        $privateKey    = openssl_pkey_get_private($privateKeyPem);
+                        if ($privateKey !== false) {
+                            $rawSig = '';
+                            if (openssl_sign($signaturePayload, $rawSig, $privateKey, OPENSSL_ALGO_SHA256)) {
+                                $digitalSignatureKepsek = base64_encode($rawSig);
+                                $fingerprintKepsek      = strtoupper(substr(hash('sha256', $digitalSignatureKepsek), 0, 32));
+                                $isSignedKepsek         = true;
+                            }
                         }
+                    } catch (\Throwable $e) {
+                        Log::warning("Tanda tangan kepsek gagal untuk sertifikat #{$sertifikat->id}: " . $e->getMessage());
                     }
-                } catch (\Throwable $e) {
-                    Log::warning("Tanda tangan kepsek gagal untuk sertifikat #{$sertifikat->id}: " . $e->getMessage());
                 }
-            }
 
-            // Tanda tangan Penguji Eksternal
-            if ($sekolah && $this->sigService->hasPrivateKey($sekolah, 'penguji_eksternal')) {
-                try {
-                    $privateKeyPem = $this->sigService->getPrivateKey($sekolah, 'penguji_eksternal');
-                    $privateKey    = openssl_pkey_get_private($privateKeyPem);
-                    if ($privateKey !== false) {
-                        $rawSig = '';
-                        if (openssl_sign($signaturePayload, $rawSig, $privateKey, OPENSSL_ALGO_SHA256)) {
-                            $digitalSignaturePenguji = base64_encode($rawSig);
-                            $fingerprintPenguji      = strtoupper(substr(hash('sha256', $digitalSignaturePenguji), 0, 32));
-                            $isSignedPenguji         = true;
+                // Tanda tangan Penguji Eksternal
+                if ($this->sigService->hasPrivateKey($sekolah, 'penguji_eksternal')) {
+                    try {
+                        $privateKeyPem = $this->sigService->getPrivateKey($sekolah, 'penguji_eksternal');
+                        $privateKey    = openssl_pkey_get_private($privateKeyPem);
+                        if ($privateKey !== false) {
+                            $rawSig = '';
+                            if (openssl_sign($signaturePayload, $rawSig, $privateKey, OPENSSL_ALGO_SHA256)) {
+                                $digitalSignaturePenguji = base64_encode($rawSig);
+                                $fingerprintPenguji      = strtoupper(substr(hash('sha256', $digitalSignaturePenguji), 0, 32));
+                                $isSignedPenguji         = true;
+                            }
                         }
+                    } catch (\Throwable $e) {
+                        Log::warning("Tanda tangan penguji gagal untuk sertifikat #{$sertifikat->id}: " . $e->getMessage());
                     }
-                } catch (\Throwable $e) {
-                    Log::warning("Tanda tangan penguji gagal untuk sertifikat #{$sertifikat->id}: " . $e->getMessage());
                 }
             }
 
@@ -171,6 +173,7 @@ class CertificateService
                 'signature_fingerprint_penguji' => $fingerprintPenguji,
                 'signature_algorithm'          => $isSigned ? 'RSA-SHA256' : null,
                 'signature_date'               => $isSigned ? $tanggalTerbit->format('d/m/Y H:i') : null,
+                'mode'                         => $mode,
             ];
 
             $pdf = Pdf::loadView('certificate.template', $data)

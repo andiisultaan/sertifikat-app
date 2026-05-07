@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { sertifikatService } from '@/services/api/sertifikatService';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { sertifikatService } from "@/services/api/sertifikatService";
 
 const KEYS = {
-  list: (params?: object) => ['sertifikat', params],
-  detail: (id: number) => ['sertifikat', id],
+  list: (params?: object) => ["sertifikat", params],
+  detail: (id: number) => ["sertifikat", id],
 };
 
 export function useSertifikatList(params?: { page?: number; per_page?: number; sekolah_id?: number }) {
@@ -21,10 +21,10 @@ export function useSertifikat(id: number, polling = false) {
     queryFn: () => sertifikatService.get(id),
     enabled: !!id,
     // Poll setiap 3 detik, berhenti otomatis saat status selesai/gagal
-    refetchInterval: (query) => {
+    refetchInterval: query => {
       if (!polling) return false;
       const status = query.state.data?.status;
-      if (status === 'selesai' || status === 'gagal') return false;
+      if (status === "selesai" || status === "gagal") return false;
       return 3000;
     },
   });
@@ -33,10 +33,10 @@ export function useSertifikat(id: number, polling = false) {
 export function useGenerateSertifikat() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (nilaiId: number) => sertifikatService.generate(nilaiId),
+    mutationFn: ({ nilaiId, mode = "digital" }: { nilaiId: number; mode?: "digital" | "basah" }) => sertifikatService.generate(nilaiId, mode),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['sertifikat'] });
-      qc.invalidateQueries({ queryKey: ['nilai'] });
+      qc.invalidateQueries({ queryKey: ["sertifikat"] });
+      qc.invalidateQueries({ queryKey: ["nilai"] });
     },
   });
 }
@@ -45,6 +45,6 @@ export function useDeleteSertifikat() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => sertifikatService.remove(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['sertifikat'] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["sertifikat"] }),
   });
 }

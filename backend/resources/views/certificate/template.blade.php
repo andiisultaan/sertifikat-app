@@ -789,12 +789,18 @@
                 @endif
               </div>
             </div>
+          @elseif(($mode ?? 'digital') === 'basah')
+            {{-- Ruang kosong untuk tanda tangan basah --}}
+            <div style="height: 20mm; border-bottom: 1pt solid #555; margin: 2mm 8mm 1mm;"></div>
           @else
             <div class="sig-unsigned-label">Belum ditandatangani digital</div>
           @endif
           {{-- Nama hanya tampil jika belum ditandatangani kepsek --}}
           @if(empty($is_signed_kepsek) || empty($qr_base64))
             <div class="sig-name">{{ $nama_kepsek ?? '____________________________' }}</div>
+            @if(!empty($nip_kepsek))
+              <div style="font-size:8.5pt; color:#4a5568; margin-top:1mm;">NIP. {{ $nip_kepsek }}</div>
+            @endif
           @endif
           <div class="sig-sub">
             Kepala Sekolah<br>
@@ -827,6 +833,9 @@
                 @endif
               </div>
             </div>
+          @elseif(($mode ?? 'digital') === 'basah')
+            {{-- Ruang kosong untuk tanda tangan basah --}}
+            <div style="height: 20mm; border-bottom: 1pt solid #555; margin: 2mm 8mm 1mm;"></div>
           @else
             <div class="sig-unsigned-label">Belum ditandatangani digital</div>
           @endif

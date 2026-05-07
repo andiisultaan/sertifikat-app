@@ -24,6 +24,7 @@ class Sertifikat extends Model
         'is_signed',
         'digital_signature_penguji',
         'is_signed_penguji',
+        'mode',
     ];
 
     protected $casts = [

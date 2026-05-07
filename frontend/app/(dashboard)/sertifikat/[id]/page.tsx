@@ -24,6 +24,7 @@ const statusConfig: Record<Sertifikat["status"], { label: string; variant: Statu
 export default function DetailSertifikatPage() {
   const { id } = useParams<{ id: string }>();
   const [generatingId, setGeneratingId] = useState<number | null>(null);
+  const [regenMode, setRegenMode] = useState<"digital" | "basah" | null>(null);
 
   const { data: sertifikat, isLoading } = useSertifikat(Number(id), true);
 
@@ -58,13 +59,20 @@ export default function DetailSertifikatPage() {
     URL.revokeObjectURL(blobUrl);
   };
 
-  const handleGenerate = () => {
-    setGeneratingId(sertifikat.nilai_id);
-    generate(sertifikat.nilai_id, {
-      onSuccess: data => toast.success(data.message ?? "Sertifikat berhasil digenerate"),
-      onError: () => toast.error("Gagal generate sertifikat"),
-      onSettled: () => setGeneratingId(null),
-    });
+  const handleGenerate = (mode?: "digital" | "basah") => {
+    const selectedMode = mode ?? sertifikat?.mode ?? "digital";
+    setGeneratingId(sertifikat!.nilai_id);
+    generate(
+      { nilaiId: sertifikat!.nilai_id, mode: selectedMode },
+      {
+        onSuccess: data => toast.success(data.message ?? "Sertifikat berhasil digenerate"),
+        onError: () => toast.error("Gagal generate sertifikat"),
+        onSettled: () => {
+          setGeneratingId(null);
+          setRegenMode(null);
+        },
+      },
+    );
   };
 
   return (
@@ -87,7 +95,7 @@ export default function DetailSertifikatPage() {
             {status === "gagal" && sertifikat.error_message && <p className="text-xs mt-1 font-mono opacity-80">{sertifikat.error_message}</p>}
           </div>
           {status === "gagal" && (
-            <Button size="sm" variant="outline" disabled={generating && generatingId === sertifikat.nilai_id} onClick={handleGenerate}>
+            <Button size="sm" variant="outline" disabled={generating && generatingId === sertifikat.nilai_id} onClick={() => handleGenerate()}>
               {generating && generatingId === sertifikat.nilai_id ? (
                 <span className="inline-flex items-center gap-2">
                   <Loader2 className="size-4 animate-spin" />
@@ -136,22 +144,44 @@ export default function DetailSertifikatPage() {
             <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Predikat</p>
             <p className="text-2xl font-bold text-yellow-600">{nilai?.predikat ?? "—"}</p>
           </div>
+          <div>
+            <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">Mode Sertifikat</p>
+            <p className="font-medium">{sertifikat.mode === "basah" ? "Tanda Tangan Basah" : "Tanda Tangan Digital"}</p>
+          </div>
         </div>
       </div>
 
       {/* Aksi */}
       {selesai && (
-        <div className="flex gap-3">
-          <Button onClick={handleDownload}>Download PDF</Button>
-          <Link href={`/sertifikat/${sertifikat.id}/print`} target="_blank">
-            <Button variant="outline">Cetak</Button>
-          </Link>
-          <Button variant="outline" disabled={generating} onClick={handleGenerate} className="w-[140px] justify-center">
-            <span className="inline-flex items-center gap-2">
-              <span className="inline-flex w-4 justify-center">{generating && generatingId === sertifikat.nilai_id ? <Loader2 className="animate-spin" /> : <span className="block w-4" />}</span>
-              <span>Generate Ulang</span>
-            </span>
-          </Button>
+        <div className="space-y-3">
+          <div className="flex gap-3">
+            <Button onClick={handleDownload}>Download PDF</Button>
+            <Link href={`/sertifikat/${sertifikat.id}/print`} target="_blank">
+              <Button variant="outline">Cetak</Button>
+            </Link>
+          </div>
+          {/* Generate ulang dengan pilihan mode */}
+          <div className="rounded-xl border p-4 bg-gray-50 space-y-3">
+            <p className="text-sm font-medium text-gray-700">Generate Ulang Sertifikat</p>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer text-sm">
+                <input type="radio" name="regenMode" value="digital" checked={(regenMode ?? sertifikat.mode ?? "digital") === "digital"} onChange={() => setRegenMode("digital")} />
+                <span>Tanda Tangan Digital</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer text-sm">
+                <input type="radio" name="regenMode" value="basah" checked={(regenMode ?? sertifikat.mode ?? "digital") === "basah"} onChange={() => setRegenMode("basah")} />
+                <span>
+                  Tanda Tangan Basah <span className="text-gray-400">(ruang kosong)</span>
+                </span>
+              </label>
+            </div>
+            <Button variant="outline" disabled={generating} onClick={() => handleGenerate(regenMode ?? sertifikat.mode ?? "digital")} className="w-40 justify-center">
+              <span className="inline-flex items-center gap-2">
+                <span className="inline-flex w-4 justify-center">{generating && generatingId === sertifikat.nilai_id ? <Loader2 className="animate-spin" /> : <span className="block w-4" />}</span>
+                <span>Generate Ulang</span>
+              </span>
+            </Button>
+          </div>
         </div>
       )}
     </div>

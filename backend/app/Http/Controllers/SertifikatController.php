@@ -50,7 +50,10 @@ class SertifikatController extends Controller
     {
         $request->validate([
             'nilai_id' => ['required', 'exists:nilai,id'],
+            'mode'     => ['sometimes', 'in:digital,basah'],
         ]);
+
+        $mode = $request->input('mode', 'digital');
 
         $nilai = $this->applySekolahScope(Nilai::query(), $request)->findOrFail($request->nilai_id);
 
@@ -99,6 +102,7 @@ class SertifikatController extends Controller
             'status'        => 'pending',
             'error_message' => null,
             'template_id'   => $template->id,
+            'mode'          => $mode,
         ]);
 
         // Proses sinkronus — langsung generate PDF tanpa queue

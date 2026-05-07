@@ -40,6 +40,7 @@ export default function SertifikatPage() {
   const [sekolahId, setSekolahId] = useState<number | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null);
   const [generatingId, setGeneratingId] = useState<number | null>(null);
+  const [generateMode, setGenerateMode] = useState<"digital" | "basah">("digital");
 
   // Admin always scoped to their own sekolah; super_admin can filter freely
   const effectiveSekolahId = isAdmin ? (user?.sekolah_id ?? undefined) : isSuperAdmin ? sekolahId : undefined;
@@ -75,11 +76,14 @@ export default function SertifikatPage() {
 
   const handleGenerate = (nilaiId: number) => {
     setGeneratingId(nilaiId);
-    generate(nilaiId, {
-      onSuccess: data => toast.success(data.message ?? "Sertifikat berhasil digenerate"),
-      onError: () => toast.error("Gagal generate sertifikat"),
-      onSettled: () => setGeneratingId(null),
-    });
+    generate(
+      { nilaiId, mode: generateMode },
+      {
+        onSuccess: data => toast.success(data.message ?? "Sertifikat berhasil digenerate"),
+        onError: () => toast.error("Gagal generate sertifikat"),
+        onSettled: () => setGeneratingId(null),
+      },
+    );
   };
 
   return (
@@ -198,6 +202,20 @@ export default function SertifikatPage() {
           <div className="px-4 py-3 border-b bg-gray-50 text-sm text-gray-500">
             Hanya siswa dengan status <strong>Lulus</strong> yang dapat digenerate sertifikatnya.
           </div>
+          {/* Mode Selector */}
+          <div className="px-4 py-3 border-b flex items-center gap-4">
+            <span className="text-sm font-medium text-gray-700">Jenis Sertifikat:</span>
+            <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <input type="radio" name="generateMode" value="digital" checked={generateMode === "digital"} onChange={() => setGenerateMode("digital")} />
+              <span>Tanda Tangan Digital</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer text-sm">
+              <input type="radio" name="generateMode" value="basah" checked={generateMode === "basah"} onChange={() => setGenerateMode("basah")} />
+              <span>
+                Tanda Tangan Basah <span className="text-gray-400">(ruang kosong)</span>
+              </span>
+            </label>
+          </div>
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b">
               <tr>
@@ -233,7 +251,7 @@ export default function SertifikatPage() {
                         </Badge>
                       </td>
                       <td className="px-4 py-3">
-                        <Button size="sm" variant="outline" disabled={generating && generatingId === n.id} onClick={() => handleGenerate(n.id)} className="w-[120px] justify-center">
+                        <Button size="sm" variant="outline" disabled={generating && generatingId === n.id} onClick={() => handleGenerate(n.id)} className="w-30 justify-center">
                           {generating && generatingId === n.id ? (
                             <span className="inline-flex items-center justify-center">
                               <Loader2 className="size-4 animate-spin" />

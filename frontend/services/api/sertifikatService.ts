@@ -1,6 +1,6 @@
-import api from '@/lib/api';
-import { PaginatedResponse } from './siswaService';
-import { Nilai } from './nilaiService';
+import api from "@/lib/api";
+import { PaginatedResponse } from "./siswaService";
+import { Nilai } from "./nilaiService";
 
 export interface Sertifikat {
   id: number;
@@ -8,7 +8,8 @@ export interface Sertifikat {
   template_id: number;
   nomor_sertifikat: string;
   file_path: string | null;
-  status: 'pending' | 'processing' | 'selesai' | 'gagal';
+  status: "pending" | "processing" | "selesai" | "gagal";
+  mode: "digital" | "basah";
   error_message: string | null;
   generated_at: string | null;
   nilai?: Nilai;
@@ -18,7 +19,7 @@ export interface Sertifikat {
 
 export const sertifikatService = {
   async list(params?: { page?: number; per_page?: number; sekolah_id?: number }) {
-    const { data } = await api.get<PaginatedResponse<Sertifikat>>('/sertifikat', { params });
+    const { data } = await api.get<PaginatedResponse<Sertifikat>>("/sertifikat", { params });
     return data;
   },
 
@@ -27,11 +28,8 @@ export const sertifikatService = {
     return data;
   },
 
-  async generate(nilaiId: number) {
-    const { data } = await api.post<{ message: string; sertifikat: Sertifikat }>(
-      '/sertifikat/generate',
-      { nilai_id: nilaiId }
-    );
+  async generate(nilaiId: number, mode: "digital" | "basah" = "digital") {
+    const { data } = await api.post<{ message: string; sertifikat: Sertifikat }>("/sertifikat/generate", { nilai_id: nilaiId, mode });
     return data;
   },
 
@@ -40,7 +38,7 @@ export const sertifikatService = {
   },
 
   downloadUrl(id: number): string {
-    const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api';
+    const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api";
     return `${base}/sertifikat/${id}/download`;
   },
 };
