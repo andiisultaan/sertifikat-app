@@ -409,7 +409,6 @@
       font-weight: 700;
       text-transform: uppercase;
       color: #1e3a5f;
-      text-decoration: underline;
     }
     .sig-sub {
       margin-top: 1mm;
@@ -769,7 +768,7 @@
         <td style="width:50%">
           <div class="sig-role">
             Kepala {{ $nama_sekolah ?? 'SMK' }}<br>
-            <em>On Behalf of the School</em>
+            <em>Principal of {{ $nama_sekolah ?? 'SMK' }}</em>
           </div>
           {{-- QR Tanda Tangan Digital Kepala Sekolah --}}
           @if(!empty($is_signed_kepsek) && !empty($qr_base64))
@@ -802,10 +801,7 @@
               <div style="font-size:8.5pt; color:#4a5568; margin-top:1mm;">NIP. {{ $nip_kepsek }}</div>
             @endif
           @endif
-          <div class="sig-sub">
-            Kepala Sekolah<br>
-            <em>School Principal</em>
-          </div>
+
         </td>
 
         {{-- Penguji Eksternal --}}
