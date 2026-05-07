@@ -36,7 +36,13 @@ function normaliseKompetensi(raw: unknown): KompetensiGroupValue[] {
 
   // New format: [{sub_judul, items}]
   if (Array.isArray(raw) && raw.length > 0 && "items" in (raw[0] ?? {})) {
-    return raw as KompetensiGroupValue[];
+    return (raw as KompetensiGroupValue[]).map(g => ({
+      sub_judul: g.sub_judul ?? "",
+      items: (g.items ?? []).map(item => ({
+        kode: item.kode ?? "",
+        judul: item.judul ?? "",
+      })),
+    }));
   }
 
   // Old flat format: [{kode, judul}]
@@ -75,7 +81,7 @@ function buildResetValues(dv: Partial<Ukk>) {
     nama: dv.nama ?? "",
     judul_pengujian: dv.judul_pengujian ?? "",
     jurusan: dv.jurusan ?? "",
-    tahun: dv.tahun,
+    tahun: dv.tahun != null ? Number(dv.tahun) : undefined,
     tanggal_mulai: dv.tanggal_mulai?.toString().slice(0, 10) ?? "",
     tanggal_selesai: dv.tanggal_selesai?.toString().slice(0, 10) ?? "",
     status: dv.status,

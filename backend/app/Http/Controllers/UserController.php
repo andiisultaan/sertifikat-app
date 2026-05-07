@@ -10,9 +10,23 @@ use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json(User::with('sekolah')->orderBy('name')->get());
+        $query = User::with('sekolah')->orderBy('name');
+
+        if ($request->has('search') && $request->get('search') !== '') {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->boolean('paginate', false)) {
+            return response()->json($query->paginate($request->integer('per_page', 20)));
+        }
+
+        return response()->json($query->get());
     }
 
     public function store(Request $request): JsonResponse

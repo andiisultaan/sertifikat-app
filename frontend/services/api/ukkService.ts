@@ -42,6 +42,7 @@ export interface UkkPayload {
   tanggal_selesai: string;
   status?: "aktif" | "selesai";
   kompetensi?: KompetensiGroup[];
+  sekolah_id?: number | null;
   nama_sekolah?: string;
   alamat_sekolah?: string;
   nama_kepsek?: string;
