@@ -790,7 +790,7 @@
             </div>
           @elseif(($mode ?? 'digital') === 'basah')
             {{-- Ruang kosong untuk tanda tangan basah --}}
-            <div style="height: 20mm; border-bottom: 1pt solid #555; margin: 2mm 8mm 1mm;"></div>
+            <div style="height: 20mm; margin: 2mm 8mm 1mm;"></div>
           @else
             <div class="sig-unsigned-label">Belum ditandatangani digital</div>
           @endif
@@ -831,7 +831,7 @@
             </div>
           @elseif(($mode ?? 'digital') === 'basah')
             {{-- Ruang kosong untuk tanda tangan basah --}}
-            <div style="height: 20mm; border-bottom: 1pt solid #555; margin: 2mm 8mm 1mm;"></div>
+            <div style="height: 20mm; margin: 2mm 8mm 1mm;"></div>
           @else
             <div class="sig-unsigned-label">Belum ditandatangani digital</div>
           @endif
