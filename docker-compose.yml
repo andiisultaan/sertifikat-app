@@ -10,8 +10,10 @@ services:
     volumes:
       - ./backend:/var/www
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - sertifikat_net
     environment:
@@ -29,8 +31,10 @@ services:
     volumes:
       - ./backend:/var/www
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - sertifikat_net
 
@@ -86,6 +90,12 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - sertifikat_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "sertifikat_user", "-psertifikat_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # Redis Queue
   redis:
@@ -98,6 +108,11 @@ services:
       - redis_data:/data
     networks:
       - sertifikat_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # phpMyAdmin
   phpmyadmin:
